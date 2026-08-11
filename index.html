@@ -1,25 +1,54 @@
-<!doctype html><html><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#F5F0E6"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Three Deep Breaths">
-<link rel="manifest" href="manifest.json"><title>Three Deep Breaths.</title>
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#F5F0E6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Three Deep Breaths">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta property="og:title" content="Three Deep Breaths.">
+<meta property="og:description" content="Pause.">
+<meta property="og:image" content="https://threedeepbreaths.in/og-image.jpg">
+<meta property="og:url" content="https://threedeepbreaths.in/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Three Deep Breaths.">
+<meta name="twitter:description" content="Pause.">
+<meta name="twitter:image" content="https://threedeepbreaths.in/og-image.jpg">
+<title>Three Deep Breaths.</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}body{background:#F5F0E6;color:#243128;font-family:Georgia,serif}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}
+body{background:#F5F0E6;color:#243128;font-family:Georgia,serif}
 main{height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;padding:28px}
-.brand{position:absolute;top:calc(22px + env(safe-area-inset-top));font-size:17px}.footer{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom));font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#8A9187}
-.wrap{width:min(88vw,420px)}.prompt{font-size:52px;margin-bottom:42px}.orb{width:240px;height:240px;border:1px solid #9BA68D;border-radius:50%;margin:0 auto 40px;transition:transform 4s,background 4s,box-shadow 4s}
+.brand{position:absolute;top:calc(22px + env(safe-area-inset-top));font-size:17px}
+.footer{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom));font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#8A9187}
+.wrap{width:min(88vw,420px)}.prompt{font-size:52px;margin-bottom:42px}
+.orb{width:240px;height:240px;border:1px solid #9BA68D;border-radius:50%;margin:0 auto 40px;transition:transform 4s,background 4s,box-shadow 4s}
 .orb.inhale{transform:scale(1.22);background:#DDE3D355;box-shadow:0 0 60px #A8B19733}.orb.exhale{transform:scale(.92)}
-.phase{height:20px;font:14px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#657062;margin-bottom:18px}
+.phase{height:20px;font:14px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#657062;margin-bottom:8px}
+.timer{height:48px;font:36px -apple-system,BlinkMacSystemFont,sans-serif;color:#294632;font-variant-numeric:tabular-nums}
+.count{height:18px;margin-bottom:12px;font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#8A9187}
 button{border:0;border-radius:999px;padding:14px 25px;background:#294632;color:white;font:15px -apple-system,BlinkMacSystemFont,sans-serif}
 .done{position:absolute;font-size:30px;opacity:0;pointer-events:none;transition:opacity .5s}.show{opacity:1;pointer-events:auto}.hidden{opacity:0;pointer-events:none}
-</style></head><body><main><div class="brand">Three Deep Breaths.</div>
-<div class="wrap" id="home"><div class="prompt">Pause.</div><div class="orb" id="orb"></div><div class="phase" id="phase">Ready</div><div id="timer" style="font:36px -apple-system,BlinkMacSystemFont,sans-serif;color:#294632;height:48px;margin-bottom:8px;font-variant-numeric:tabular-nums"></div><div id="count" style="font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#8A9187;height:18px;margin-bottom:12px"></div><button id="begin">Three Deep Breaths</button></div>
+</style></head>
+<body><main>
+<div class="brand">Three Deep Breaths.</div>
+<div class="wrap" id="home">
+<div class="prompt">Pause.</div><div class="orb" id="orb"></div>
+<div class="phase" id="phase">Ready</div><div class="timer" id="timer"></div>
+<div class="count" id="count"></div><button id="begin">Three Deep Breaths</button>
+</div>
 <div class="done" id="done">That's it.<br><span style="font-size:20px">Carry on.</span><br><button id="again" style="margin-top:25px">Again</button></div>
-<div class="footer">No login. No tracking. Just a pause.</div></main>
+<div class="footer">No login. No tracking. Just a pause.</div>
+</main>
 <script>
-const o=document.getElementById('orb'),p=document.getElementById('phase'),h=document.getElementById('home'),d=document.getElementById('done'),c=document.getElementById('count'),t=document.getElementById('timer');
+const o=document.getElementById('orb'),p=document.getElementById('phase'),h=document.getElementById('home'),d=document.getElementById('done'),c=document.getElementById('count'),t=document.getElementById('timer'),b=document.getElementById('begin');
 const wait=x=>new Promise(r=>setTimeout(r,x));
-async function phaseTimer(label,seconds,cls){p.textContent=label;o.className='orb '+cls;for(let n=seconds;n>0;n--){t.textContent=n;await wait(1000)}} async function go(){document.getElementById('begin').style.display='none';for(let i=1;i<=3;i++){c.textContent='Breath '+i+' of 3';await phaseTimer('Inhale',4,'inhale');await phaseTimer('Exhale',6,'exhale')}h.classList.add('hidden');d.classList.add('show');p.textContent='';c.textContent='';t.textContent='';o.className='orb'}
-document.getElementById('begin').onclick=go;document.getElementById('again').onclick=()=>{d.classList.remove('show');h.classList.remove('hidden');document.getElementById('begin').style.display='inline-block';p.textContent='Ready';c.textContent='';t.textContent='';o.className='orb'};
+async function phaseTimer(label,seconds,cls){p.textContent=label;o.className='orb '+cls;for(let n=seconds;n>0;n--){t.textContent=n;await wait(1000)}}
+async function go(){b.style.display='none';for(let i=1;i<=3;i++){c.textContent='Breath '+i+' of 3';await phaseTimer('Inhale',4,'inhale');await phaseTimer('Exhale',6,'exhale')}h.classList.add('hidden');d.classList.add('show');p.textContent='';c.textContent='';t.textContent='';o.className='orb'}
+b.onclick=go;
+document.getElementById('again').onclick=()=>{d.classList.remove('show');h.classList.remove('hidden');b.style.display='inline-block';p.textContent='Ready';c.textContent='';t.textContent='';o.className='orb'};
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
