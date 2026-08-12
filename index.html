@@ -11,12 +11,12 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta property="og:title" content="Three Deep Breaths.">
 <meta property="og:description" content="Pause.">
-<meta property="og:image" content="https://threedeepbreaths.in/og-image.jpg">
-<meta property="og:url" content="https://threedeepbreaths.in/">
+<meta property="og:image" content="https://app.threedeepbreaths.in/og-image.jpg">
+<meta property="og:url" content="https://app.threedeepbreaths.in/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Three Deep Breaths.">
 <meta name="twitter:description" content="Pause.">
-<meta name="twitter:image" content="https://threedeepbreaths.in/og-image.jpg">
+<meta name="twitter:image" content="https://app.threedeepbreaths.in/og-image.jpg">
 <title>Three Deep Breaths.</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}
@@ -47,90 +47,124 @@ button{border:0;border-radius:999px;padding:14px 25px;background:#294632;color:w
 <div class="done" id="done">That's it.<br><span style="font-size:20px">Carry on.</span><br><button id="again" style="margin-top:25px">Again</button></div>
 <div class="volume" aria-label="Sound volume">
   <span id="speaker" aria-hidden="true">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+<svg id="speakerOn" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 <path d="M4 9v6h4l5 4V5L8 9H4z"></path>
 <path d="M16 9.5c1.2 1.2 1.2 3.8 0 5"></path>
 <path d="M19 7c2.6 2.8 2.6 7.2 0 10"></path>
+</svg>
+<svg id="speakerOff" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+<path d="M4 9v6h4l5 4V5L8 9H4z"></path>
+<path d="M17 9l4 6"></path><path d="M21 9l-4 6"></path>
 </svg></span>
   <input id="volume" type="range" min="0" max="100" value="55" aria-label="Volume">
 </div>
 <div class="footer">No login. No tracking. Just a pause.</div>
 </main>
 <script>
-const o=document.getElementById('orb'),p=document.getElementById('phase'),h=document.getElementById('home'),d=document.getElementById('done'),c=document.getElementById('count'),t=document.getElementById('timer'),b=document.getElementById('begin');
+const o=document.getElementById('orb'),p=document.getElementById('phase'),h=document.getElementById('home'),d=document.getElementById('done'),c=document.getElementById('count'),t=document.getElementById('timer'),b=document.getElementById('begin'),again=document.getElementById('again'),volume=document.getElementById('volume'),speakerOn=document.getElementById('speakerOn'),speakerOff=document.getElementById('speakerOff');
 const wait=x=>new Promise(r=>setTimeout(r,x));
-let audioCtx=null, master=null, osc=null, gain=null;
+let audioCtx=null, master=null, volumeLevel=0.55;
+
+function setVolume(value){
+  volumeLevel=Math.max(0,Math.min(1,Number(value)/100));
+  volume.value=Math.round(volumeLevel*100);
+  const muted=volumeLevel===0;
+  if(speakerOn) speakerOn.style.display=muted?'none':'block';
+  if(speakerOff) speakerOff.style.display=muted?'block':'none';
+  if(master && audioCtx){
+    master.gain.cancelScheduledValues(audioCtx.currentTime);
+    master.gain.setTargetAtTime(0.42*volumeLevel,audioCtx.currentTime,0.02);
+  }
+}
+
 function startAudio(){
   try{
     const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return;
     audioCtx=audioCtx||new AC();
-    const ready=audioCtx.resume ? audioCtx.resume() : Promise.resolve();
     master=master||audioCtx.createGain();
-    master.gain.value=0.28*(Number(document.getElementById('volume').value)/100);
-    master.connect(audioCtx.destination);
-    // Safari can suspend Web Audio unless the context is explicitly resumed
-    // from the user gesture that started the experience.
-    ready.catch(()=>{});
+    if(!master._connected){ master.connect(audioCtx.destination); master._connected=true; }
+    setVolume(volume.value);
+    const r=audioCtx.resume();
+    if(r&&r.catch) r.catch(()=>{});
   }catch(e){ audioCtx=null; master=null; }
 }
-function tone(freq,duration,fromGain,toGain){
-  if(!audioCtx||!master)return;
-  const now=audioCtx.currentTime;
-  const g=audioCtx.createGain(), o=audioCtx.createOscillator();
-  o.type='sine'; o.frequency.setValueAtTime(freq,now);
-  g.gain.setValueAtTime(fromGain,now);
-  g.gain.linearRampToValueAtTime(toGain,now+duration*.85);
-  g.gain.linearRampToValueAtTime(0.0001,now+duration);
-  o.connect(g); g.connect(master); o.start(now); o.stop(now+duration+.03);
-}
+
 function breathSound(label,seconds){
-  if(!audioCtx||!master||volumeLevel===0) return;
+  if(!audioCtx||!master||volumeLevel<=0) return;
   const now=audioCtx.currentTime;
-  const isIn=label==='inhale';
-  const f0=isIn?196:174;
-  const f1=isIn?293.66:130.81;
-
-  const osc=audioCtx.createOscillator();
-  const osc2=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-
-  osc.type='sine';
-  osc2.type='sine';
-  osc.frequency.setValueAtTime(f0,now);
-  osc.frequency.exponentialRampToValueAtTime(f1,now+seconds);
-  osc2.frequency.setValueAtTime(f0*2,now);
-  osc2.frequency.exponentialRampToValueAtTime(f1*2,now+seconds);
-
+  const o1=audioCtx.createOscillator(), o2=audioCtx.createOscillator(), g=audioCtx.createGain();
+  const inhale=label==='Inhale';
+  const start=inhale?174:146, end=inhale?261:110;
+  o1.type='sine'; o2.type='sine';
+  o1.frequency.setValueAtTime(start,now);
+  o1.frequency.exponentialRampToValueAtTime(end,now+seconds);
+  o2.frequency.setValueAtTime(start*2,now);
+  o2.frequency.exponentialRampToValueAtTime(end*2,now+seconds);
   g.gain.setValueAtTime(0.0001,now);
-  g.gain.exponentialRampToValueAtTime(0.32,now+0.7);
-  g.gain.setValueAtTime(0.32,now+Math.max(0.7,seconds-1.1));
+  g.gain.exponentialRampToValueAtTime(0.22,now+Math.min(0.8,seconds*.22));
+  g.gain.setValueAtTime(0.22,now+Math.max(0.8,seconds-1));
   g.gain.exponentialRampToValueAtTime(0.0001,now+seconds);
-
-  osc.connect(g); osc2.connect(g); g.connect(master);
-  osc.start(now); osc2.start(now);
-  osc.stop(now+seconds+0.05); osc2.stop(now+seconds+0.05);
+  o1.connect(g); o2.connect(g); g.connect(master);
+  o1.start(now); o2.start(now); o1.stop(now+seconds+.05); o2.stop(now+seconds+.05);
 }
-function gong(){
-  if(!audioCtx||!master)return;
+
+function completionSound(){
+  if(!audioCtx||!master||volumeLevel<=0) return;
   const now=audioCtx.currentTime;
-  [220,330,440].forEach((f,i)=>{
-    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
-    o.type='sine'; o.frequency.value=f;
-    g.gain.setValueAtTime(0.0001,now);
-    g.gain.exponentialRampToValueAtTime(0.30/(i+1),now+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+3.8);
-    o.connect(g); g.connect(master); o.start(now); o.stop(now+4);
+  const mix=audioCtx.createGain();
+  mix.gain.setValueAtTime(0.0001,now);
+  mix.gain.exponentialRampToValueAtTime(0.20,now+0.08);
+  mix.gain.exponentialRampToValueAtTime(0.0001,now+3.6);
+  mix.connect(master);
+  [174,261,392,523].forEach((f,i)=>{
+    const osc=audioCtx.createOscillator(), g=audioCtx.createGain();
+    osc.type='sine'; osc.frequency.value=f; g.gain.value=[0.5,0.28,0.14,0.06][i];
+    osc.connect(g); g.connect(mix); osc.start(now); osc.stop(now+3.8);
   });
 }
+
 async function phaseTimer(label,seconds,cls){
   p.textContent=label;
   o.style.transitionDuration=seconds+'s';
   o.className='orb '+cls;
-  breathSound(label.toLowerCase(),seconds);
-  for(let n=seconds;n>0;n--){t.textContent=n;await wait(1000)}
+  breathSound(label,seconds);
+  const end=Date.now()+seconds*1000;
+  while(true){
+    const remaining=Math.max(0,end-Date.now());
+    const whole=Math.ceil(remaining/1000);
+    t.textContent=whole>0?whole:'';
+    if(remaining<=0) break;
+    await wait(Math.min(100,remaining));
+  }
+  t.textContent='';
 }
-async function go(){b.style.display='none';startAudio();for(let i=1;i<=3;i++){c.textContent='Breath '+i+' of 3';await phaseTimer('Inhale',4,'inhale');await phaseTimer('Exhale',6,'exhale')}await wait(800); gong(); h.classList.add('hidden');d.classList.add('show');p.textContent='';c.textContent='';t.textContent='';o.className='orb'}
-b.onclick=go;
-document.getElementById('again').onclick=()=>{d.classList.remove('show');h.classList.remove('hidden');b.style.display='inline-block';p.textContent='Ready';c.textContent='';t.textContent='';o.className='orb'};
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
-</script></body></html>
+
+async function go(){
+  b.style.display='none';
+  startAudio();
+  h.classList.remove('hidden');
+  d.classList.remove('show');
+  for(let i=1;i<=3;i++){
+    c.textContent='Breath '+i+' of 3';
+    await phaseTimer('Inhale',4,'inhale');
+    await phaseTimer('Exhale',6,'exhale');
+  }
+  await wait(700);
+  completionSound();
+  h.classList.add('hidden');
+  d.classList.add('show');
+  p.textContent=''; c.textContent=''; t.textContent=''; o.className='orb';
+}
+
+b.addEventListener('click',go);
+again.addEventListener('click',()=>{
+  d.classList.remove('show'); h.classList.remove('hidden'); b.style.display='inline-block';
+  p.textContent='Ready'; c.textContent=''; t.textContent=''; o.className='orb'; o.style.transitionDuration='4s';
+});
+volume.addEventListener('input',e=>setVolume(e.target.value));
+volume.addEventListener('change',e=>setVolume(e.target.value));
+setVolume(volume.value);
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body></html>
