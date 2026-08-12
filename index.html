@@ -46,8 +46,55 @@ button{border:0;border-radius:999px;padding:14px 25px;background:#294632;color:w
 <script>
 const o=document.getElementById('orb'),p=document.getElementById('phase'),h=document.getElementById('home'),d=document.getElementById('done'),c=document.getElementById('count'),t=document.getElementById('timer'),b=document.getElementById('begin');
 const wait=x=>new Promise(r=>setTimeout(r,x));
-async function phaseTimer(label,seconds,cls){p.textContent=label;o.className='orb '+cls;for(let n=seconds;n>0;n--){t.textContent=n;await wait(1000)}}
-async function go(){b.style.display='none';for(let i=1;i<=3;i++){c.textContent='Breath '+i+' of 3';await phaseTimer('Inhale',4,'inhale');await phaseTimer('Exhale',6,'exhale')}h.classList.add('hidden');d.classList.add('show');p.textContent='';c.textContent='';t.textContent='';o.className='orb'}
+let audioCtx=null, master=null, osc=null, gain=null;
+function startAudio(){
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();
+    master=audioCtx.createGain(); master.gain.value=0.055; master.connect(audioCtx.destination);
+  }catch(e){ audioCtx=null; }
+}
+function tone(freq,duration,fromGain,toGain){
+  if(!audioCtx||!master)return;
+  const now=audioCtx.currentTime;
+  const g=audioCtx.createGain(), o=audioCtx.createOscillator();
+  o.type='sine'; o.frequency.setValueAtTime(freq,now);
+  g.gain.setValueAtTime(fromGain,now);
+  g.gain.linearRampToValueAtTime(toGain,now+duration*.85);
+  g.gain.linearRampToValueAtTime(0.0001,now+duration);
+  o.connect(g); g.connect(master); o.start(now); o.stop(now+duration+.03);
+}
+function breathSound(kind,seconds){
+  if(!audioCtx||!master)return;
+  const now=audioCtx.currentTime;
+  const g=audioCtx.createGain(), o=audioCtx.createOscillator();
+  o.type='sine';
+  const start=kind==='inhale'?174:146;
+  const end=kind==='inhale'?261:110;
+  o.frequency.setValueAtTime(start,now);
+  o.frequency.exponentialRampToValueAtTime(end,now+seconds);
+  g.gain.setValueAtTime(0.0001,now);
+  g.gain.exponentialRampToValueAtTime(0.20,now+seconds*.25);
+  g.gain.exponentialRampToValueAtTime(0.0001,now+seconds);
+  o.connect(g); g.connect(master); o.start(now); o.stop(now+seconds+.03);
+}
+function gong(){
+  if(!audioCtx||!master)return;
+  const now=audioCtx.currentTime;
+  [220,330,440].forEach((f,i)=>{
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,now);
+    g.gain.exponentialRampToValueAtTime(0.12/(i+1),now+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+3.8);
+    o.connect(g); g.connect(master); o.start(now); o.stop(now+4);
+  });
+}
+async function phaseTimer(label,seconds,cls){
+  p.textContent=label; o.className='orb '+cls; breathSound(label.toLowerCase(),seconds);
+  for(let n=seconds;n>0;n--){t.textContent=n;await wait(1000)}
+}
+async function go(){b.style.display='none';startAudio();for(let i=1;i<=3;i++){c.textContent='Breath '+i+' of 3';await phaseTimer('Inhale',4,'inhale');await phaseTimer('Exhale',6,'exhale')}await wait(800); gong(); h.classList.add('hidden');d.classList.add('show');p.textContent='';c.textContent='';t.textContent='';o.className='orb'}
 b.onclick=go;
 document.getElementById('again').onclick=()=>{d.classList.remove('show');h.classList.remove('hidden');b.style.display='inline-block';p.textContent='Ready';c.textContent='';t.textContent='';o.className='orb'};
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
