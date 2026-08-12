@@ -31,6 +31,10 @@ main{height:100dvh;display:flex;align-items:center;justify-content:center;text-a
 .timer{height:48px;font:36px -apple-system,BlinkMacSystemFont,sans-serif;color:#294632;font-variant-numeric:tabular-nums}
 .count{height:18px;margin-bottom:12px;font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#8A9187}
 button{border:0;border-radius:999px;padding:14px 25px;background:#294632;color:white;font:15px -apple-system,BlinkMacSystemFont,sans-serif}
+.volume{position:absolute;right:24px;bottom:calc(24px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;color:#657062;font:12px -apple-system,BlinkMacSystemFont,sans-serif;opacity:.8}
+.volume input{width:74px;accent-color:#294632}
+.volume span{font-size:16px}
+.footer{bottom:calc(58px + env(safe-area-inset-bottom))}
 .done{position:absolute;font-size:30px;opacity:0;pointer-events:none;transition:opacity .5s}.show{opacity:1;pointer-events:auto}.hidden{opacity:0;pointer-events:none}
 </style></head>
 <body><main>
@@ -41,6 +45,10 @@ button{border:0;border-radius:999px;padding:14px 25px;background:#294632;color:w
 <div class="count" id="count"></div><button id="begin">Three Deep Breaths</button>
 </div>
 <div class="done" id="done">That's it.<br><span style="font-size:20px">Carry on.</span><br><button id="again" style="margin-top:25px">Again</button></div>
+<div class="volume" aria-label="Sound volume">
+  <span id="speaker">◒</span>
+  <input id="volume" type="range" min="0" max="100" value="55" aria-label="Volume">
+</div>
 <div class="footer">No login. No tracking. Just a pause.</div>
 </main>
 <script>
@@ -51,7 +59,7 @@ function startAudio(){
   try{
     audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
     if(audioCtx.state==='suspended') audioCtx.resume();
-    master=audioCtx.createGain(); master.gain.value=0.055; master.connect(audioCtx.destination);
+    master=audioCtx.createGain(); master.gain.value=0.28; master.connect(audioCtx.destination);
   }catch(e){ audioCtx=null; }
 }
 function tone(freq,duration,fromGain,toGain){
@@ -74,7 +82,7 @@ function breathSound(kind,seconds){
   o.frequency.setValueAtTime(start,now);
   o.frequency.exponentialRampToValueAtTime(end,now+seconds);
   g.gain.setValueAtTime(0.0001,now);
-  g.gain.exponentialRampToValueAtTime(0.20,now+seconds*.25);
+  g.gain.exponentialRampToValueAtTime(0.42,now+seconds*.25);
   g.gain.exponentialRampToValueAtTime(0.0001,now+seconds);
   o.connect(g); g.connect(master); o.start(now); o.stop(now+seconds+.03);
 }
@@ -85,7 +93,7 @@ function gong(){
     const o=audioCtx.createOscillator(), g=audioCtx.createGain();
     o.type='sine'; o.frequency.value=f;
     g.gain.setValueAtTime(0.0001,now);
-    g.gain.exponentialRampToValueAtTime(0.12/(i+1),now+0.02);
+    g.gain.exponentialRampToValueAtTime(0.30/(i+1),now+0.02);
     g.gain.exponentialRampToValueAtTime(0.0001,now+3.8);
     o.connect(g); g.connect(master); o.start(now); o.stop(now+4);
   });
