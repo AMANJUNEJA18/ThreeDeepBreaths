@@ -1,12 +1,11 @@
-Three Deep Breaths. — V7
+Three Deep Breaths. — V8
 
-Volume-control fix:
-- Persistent master audio gain node, connected only once.
-- Slider directly controls master gain in real time.
-- Slider works during an active breathing session.
-- Zero volume produces true silence.
-- Speaker icon changes to a standard muted-speaker icon at zero.
-- Volume control is initialized on page load and on every session.
-- New service-worker cache version tdb-v7.
+Sound refinement:
+- Breath tone is warmer, softer and more soothing.
+- Breath sound is moderately louder.
+- Completion sound changed to a softer resonant bowl/chime.
+- Standard speaker icon switches to muted speaker when volume reaches zero.
+- Slider controls master volume continuously.
+- New service-worker cache version tdb-v8.
 
 Upload all files to the root of the ThreeDeepBreaths GitHub repository and commit to main.

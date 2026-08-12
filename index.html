@@ -83,19 +83,32 @@ function tone(freq,duration,fromGain,toGain){
   g.gain.linearRampToValueAtTime(0.0001,now+duration);
   o.connect(g); g.connect(master); o.start(now); o.stop(now+duration+.03);
 }
-function breathSound(kind,seconds){
-  if(!audioCtx||!master)return;
+function breathSound(label,seconds){
+  if(!audioCtx||!master||volumeLevel===0) return;
   const now=audioCtx.currentTime;
-  const g=audioCtx.createGain(), o=audioCtx.createOscillator();
-  o.type='sine';
-  const start=kind==='inhale'?174:146;
-  const end=kind==='inhale'?261:110;
-  o.frequency.setValueAtTime(start,now);
-  o.frequency.exponentialRampToValueAtTime(end,now+seconds);
+  const isIn=label==='inhale';
+  const f0=isIn?196:174;
+  const f1=isIn?293.66:130.81;
+
+  const osc=audioCtx.createOscillator();
+  const osc2=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+
+  osc.type='sine';
+  osc2.type='sine';
+  osc.frequency.setValueAtTime(f0,now);
+  osc.frequency.exponentialRampToValueAtTime(f1,now+seconds);
+  osc2.frequency.setValueAtTime(f0*2,now);
+  osc2.frequency.exponentialRampToValueAtTime(f1*2,now+seconds);
+
   g.gain.setValueAtTime(0.0001,now);
-  g.gain.exponentialRampToValueAtTime(0.50,now+seconds*.22);
+  g.gain.exponentialRampToValueAtTime(0.32,now+0.7);
+  g.gain.setValueAtTime(0.32,now+Math.max(0.7,seconds-1.1));
   g.gain.exponentialRampToValueAtTime(0.0001,now+seconds);
-  o.connect(g); g.connect(master); o.start(now); o.stop(now+seconds+.03);
+
+  osc.connect(g); osc2.connect(g); g.connect(master);
+  osc.start(now); osc2.start(now);
+  osc.stop(now+seconds+0.05); osc2.stop(now+seconds+0.05);
 }
 function gong(){
   if(!audioCtx||!master)return;
