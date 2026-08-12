@@ -1,12 +1,12 @@
-Three Deep Breaths. — V6
+Three Deep Breaths. — V7
 
-Fixes:
-- Safari Web Audio explicitly resumes from the button gesture.
-- Breath audio is audible on Safari and Chrome.
-- Standard speaker icon for volume control.
-- Volume slider is connected directly to the master audio gain.
-- Circle transition duration is set dynamically to the exact phase length:
-  4 seconds inhale and 6 seconds exhale.
-- New service-worker cache version forces V6 to replace V5.
+Volume-control fix:
+- Persistent master audio gain node, connected only once.
+- Slider directly controls master gain in real time.
+- Slider works during an active breathing session.
+- Zero volume produces true silence.
+- Speaker icon changes to a standard muted-speaker icon at zero.
+- Volume control is initialized on page load and on every session.
+- New service-worker cache version tdb-v7.
 
 Upload all files to the root of the ThreeDeepBreaths GitHub repository and commit to main.

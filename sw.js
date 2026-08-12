@@ -1,4 +1,4 @@
-const C='tdb-v6';
+const C='tdb-v7';
 self.addEventListener('install',e=>{
   self.skipWaiting();
   e.waitUntil(caches.open(C).then(c=>c.addAll(['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'])));
