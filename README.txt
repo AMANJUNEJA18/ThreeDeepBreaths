@@ -1,18 +1,27 @@
-Three Deep Breaths — FINAL BACKGROUND AUDIO
+Three Deep Breaths — FINAL BACKGROUND AUDIO RESUME
 
-Based on the latest working visible-count package.
+Built directly from the latest deployed BACKGROUND-AUDIO package.
 
-Changes:
-- The launch button disappears when the 3-breath session starts.
-- Native HTML audio is used for the continuous breath sound.
-- Native media playback is preferred because it is more suitable for
-  iPhone/Android screen-lock/background playback than Web Audio alone.
-- A soft native gong plays at completion.
-- Volume and mute control the native audio.
-- Retreat counts remain unchanged: 7 / 12 / 21.
-- Service-worker version bumped to v4; HTML remains network-first.
+Retained:
+- Green launch button disappears when the 3-breath session starts.
+- Existing 3-breath count.
+- Retreat counts for 7 / 12 / 21.
+- Stay / if you feel → A little more → A while longer → Welcome back.
+- 4s inhale / 6s exhale.
+- Circle and timers.
+- Volume control and mute icon.
+- Native breath audio and completion gong.
+- Network-first HTML cache strategy.
 
-Note: iOS/Android system settings, Silent/Focus modes, battery policies and
-browser restrictions can still override background playback. The native
-media path is the strongest browser-supported approach, but no web app can
-guarantee audio against every OS policy.
+New in this release:
+- Service worker version bumped to v5.
+- When the page becomes active again after a lock/background transition,
+  the app explicitly attempts to resume the breath audio immediately.
+- pageshow, focus and visibilitychange are handled.
+
+Important platform limitation:
+A web app cannot guarantee audible playback while an iPhone or Android
+device is locked. The operating system/browser may suspend audio in the
+background. This build uses native media playback and automatically attempts
+to resume it as soon as the page becomes active again, which is the strongest
+recovery path available to a normal web app.
