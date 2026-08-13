@@ -81,6 +81,7 @@ button{cursor:pointer}
 
 <section class="welcome" id="welcome">
   <div class="message">Welcome back.</div>
+  <button class="stay" id="homeButton" style="margin-top:24px">Home</button>
 </section>
 
 <audio id="breathAudio" preload="auto" loop playsinline></audio>
@@ -312,10 +313,14 @@ $('inviteDone').addEventListener('click',()=>{
 $('leave').addEventListener('click',()=>{
   retreat.classList.remove('show');welcome.classList.add('show');
 });
+$('homeButton').addEventListener('click',()=>{
+  window.location.href='/';
+});
 $('volume').addEventListener('input',e=>setVolume(e.target.value));
 
 function resumeAudioAfterReturn(){
   if(typeof breathAudio==='undefined') return;
+  if(!activeSession) return;
   if(!breathAudio.src || breathAudio.paused === false) return;
   try{
     breathAudio.volume=volumeLevel;
@@ -354,7 +359,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260813-v7',
+        '/sw.js?v=20260813-v8',
         { updateViaCache: 'none' }
       );
 
