@@ -198,6 +198,20 @@ function updateBreathingUI(session, nowMs){
   return false;
 }
 
+function syncAudioToSession(session){
+  if(!session || typeof breathAudio==='undefined' || !breathAudio.src) return;
+  const elapsed=Math.max(0,Date.now()-session.startMs);
+  const position=(elapsed%10000)/1000;
+  try{
+    if(Math.abs(breathAudio.currentTime-position)>0.18){
+      breathAudio.currentTime=position;
+    }
+    breathAudio.volume=volumeLevel;
+    const p=breathAudio.play();
+    if(p&&p.catch)p.catch(()=>{});
+  }catch(e){}
+}
+
 function runElapsedSession(breaths, orbEl, phaseEl, timerEl, countEl){
   return new Promise(resolve=>{
     const session={
@@ -207,6 +221,7 @@ function runElapsedSession(breaths, orbEl, phaseEl, timerEl, countEl){
       finished:false,
       resolve
     };
+    syncAudioToSession(session);
     activeSession=session;
 
     function tick(){
@@ -311,24 +326,35 @@ function resumeAudioAfterReturn(){
 
 document.addEventListener('visibilitychange',()=>{
   syncActiveSession();
-  if(document.visibilityState==='visible') resumeAudioAfterReturn();
+  if(document.visibilityState==='visible'){
+    resumeAudioAfterReturn();
+    if(activeSession) syncAudioToSession(activeSession);
+  }
 });
 window.addEventListener('pageshow',()=>{
   syncActiveSession();
   resumeAudioAfterReturn();
+  if(activeSession) syncAudioToSession(activeSession);
 });
 window.addEventListener('focus',()=>{
   syncActiveSession();
   resumeAudioAfterReturn();
+  if(activeSession) syncAudioToSession(activeSession);
 });
 
 setVolume($('volume').value);
+
+setInterval(()=>{
+  if(activeSession && document.visibilityState==='visible'){
+    syncAudioToSession(activeSession);
+  }
+},500);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260813-v6',
+        '/sw.js?v=20260813-v7',
         { updateViaCache: 'none' }
       );
 
