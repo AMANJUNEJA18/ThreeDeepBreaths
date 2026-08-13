@@ -190,7 +190,7 @@ async function runRetreatStage(breaths){
   retreat.classList.add('show');
   startAudio();
   for(let i=1;i<=breaths;i++){
-    retreatCount.textContent='';
+    retreatCount.textContent='Breath '+i+' of '+breaths;
     await phaseRun(retreatOrb,retreatPhase,retreatTimer,'Inhale',4);
     await phaseRun(retreatOrb,retreatPhase,retreatTimer,'Exhale',6);
   }

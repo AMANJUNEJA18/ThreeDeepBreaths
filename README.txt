@@ -1,28 +1,22 @@
-Three Deep Breaths — FINAL CACHE FIX
+Three Deep Breaths — FINAL BREATH COUNTS
 
-Deploy the contents of this ZIP to the existing ThreeDeepBreaths repository
-and commit to main.
+Based on the latest cache-fixed app package.
 
-This package contains the complete app plus the cache/deployment fix.
+New:
+- Retreat sessions show Breath 1 of 7 through 7 of 7.
+- The same applies to 12 and 21.
+- The total is visible only while practicing; it is not shown as a choice.
 
-Flow:
-3 breaths
-→ Stay / if you feel
-→ 7 breaths
-→ A little more
-→ 12 breaths
-→ A while longer
-→ 21 breaths
-→ Welcome back
+Retained:
+- 3 breaths
+- 4s inhale / 6s exhale
+- synchronized circle and timer
+- soothing breath sound
+- soft completion sound
+- working volume control
+- speaker becomes muted at zero
+- Safari-compatible audio
+- Stay / if you feel → A little more → A while longer → Welcome back
+- network-first HTML and versioned service-worker update strategy
 
-The cache fix:
-- HTML/navigation is network-first and is not stored as the primary app shell.
-- Static assets remain cached for PWA reliability.
-- Service worker version is changed.
-- Service-worker registration is versioned.
-- updateViaCache is disabled.
-- The worker is explicitly updated.
-- When the new worker takes control, the page reloads once.
-- Old service-worker caches are deleted.
-
-Do not change index.html or sw.js after extracting unless necessary.
+Deploy all files to the existing app repository.
