@@ -1,29 +1,18 @@
-Three Deep Breaths — FINAL COUNTS VISIBLE
+Three Deep Breaths — FINAL BACKGROUND AUDIO
 
-Built from the latest cache-fixed breath-count package.
+Based on the latest working visible-count package.
 
-Changes in this release:
-1. The green "Three Deep Breaths" launch button disappears immediately when
-   the first breathing session starts. It is not merely disabled.
-2. Retreat counts are explicitly visible during active retreat sessions:
-   Breath 1 of 7 ... 7 of 7; 1 of 12 ... 12 of 12; 1 of 21 ... 21 of 21.
-3. The retreat count uses the same subtle standard sizing as the original
-   Breath 1 of 3 indicator.
-4. Service worker/cache release bumped to v3 so this deployment is forced
-   through the update path.
-5. HTML remains network-first; old service-worker caches are removed.
+Changes:
+- The launch button disappears when the 3-breath session starts.
+- Native HTML audio is used for the continuous breath sound.
+- Native media playback is preferred because it is more suitable for
+  iPhone/Android screen-lock/background playback than Web Audio alone.
+- A soft native gong plays at completion.
+- Volume and mute control the native audio.
+- Retreat counts remain unchanged: 7 / 12 / 21.
+- Service-worker version bumped to v4; HTML remains network-first.
 
-All other existing functionality is retained:
-- 3 breaths
-- 4s inhale / 6s exhale
-- synchronized circle
-- timer/countdown
-- soothing breath sound
-- completion gong
-- working volume control
-- speaker -> muted speaker at zero
-- Safari-compatible audio
-- Stay / if you feel
-- A little more
-- A while longer
-- Welcome back
+Note: iOS/Android system settings, Silent/Focus modes, battery policies and
+browser restrictions can still override background playback. The native
+media path is the strongest browser-supported approach, but no web app can
+guarantee audio against every OS policy.

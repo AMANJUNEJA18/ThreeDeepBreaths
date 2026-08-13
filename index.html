@@ -83,6 +83,9 @@ button{cursor:pointer}
   <div class="message">Welcome back.</div>
 </section>
 
+<audio id="breathAudio" preload="auto" loop playsinline></audio>
+<audio id="gongAudio" preload="auto"></audio>
+
 <div class="volume" aria-label="Sound volume">
   <span id="speaker" aria-hidden="true">
     <svg id="speakerOn" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -114,43 +117,53 @@ function setVolume(value){
     master.gain.cancelScheduledValues(audioCtx.currentTime);
     master.gain.setTargetAtTime(.42*volumeLevel,audioCtx.currentTime,.015);
   }
+  if(typeof breathAudio!=='undefined') breathAudio.volume=volumeLevel;
+  if(typeof gongAudio!=='undefined') gongAudio.volume=volumeLevel;
 }
+const breathAudio=$('breathAudio');
+const gongAudio=$('gongAudio');
+let nativeAudioReady=false;
+
 function startAudio(){
   try{
-    const AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC)return;
-    if(!audioCtx)audioCtx=new AC();
-    if(!master){
-      master=audioCtx.createGain();
-      master.connect(audioCtx.destination);
+    breathAudio.src='./breath-loop.wav';
+    gongAudio.src='./gong.wav';
+    breathAudio.volume=volumeLevel;
+    gongAudio.volume=volumeLevel;
+    nativeAudioReady=true;
+    const p=breathAudio.play();
+    if(p&&p.catch)p.catch(()=>{});
+    if('mediaSession' in navigator){
+      try{
+        navigator.mediaSession.metadata=new MediaMetadata({
+          title:'Three Deep Breaths.',
+          artist:'Three Deep Breaths.',
+          album:'A little retreat into yourself.'
+        });
+        navigator.mediaSession.setActionHandler('play',()=>breathAudio.play().catch(()=>{}));
+        navigator.mediaSession.setActionHandler('pause',()=>breathAudio.pause());
+      }catch(e){}
     }
-    setVolume($('volume').value);
-    const p=audioCtx.resume?.(); if(p?.catch)p.catch(()=>{});
   }catch(e){}
 }
+
+function stopBreathAudio(){
+  try{breathAudio.pause();breathAudio.currentTime=0;}catch(e){}
+}
+
 function breathSound(kind,seconds){
-  if(!audioCtx||!master||volumeLevel===0)return;
-  const now=audioCtx.currentTime, inhale=kind==='Inhale';
-  const f0=inhale?196:174, f1=inhale?293.66:130.81;
-  const o1=audioCtx.createOscillator(),o2=audioCtx.createOscillator(),g=audioCtx.createGain();
-  o1.type=o2.type='sine';
-  o1.frequency.setValueAtTime(f0,now);o1.frequency.exponentialRampToValueAtTime(f1,now+seconds);
-  o2.frequency.setValueAtTime(f0*2,now);o2.frequency.exponentialRampToValueAtTime(f1*2,now+seconds);
-  g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.32,now+.7);
-  g.gain.setValueAtTime(.32,now+Math.max(.7,seconds-1.1));g.gain.exponentialRampToValueAtTime(.0001,now+seconds);
-  o1.connect(g);o2.connect(g);g.connect(master);o1.start(now);o2.start(now);o1.stop(now+seconds+.05);o2.stop(now+seconds+.05);
+  return;
 }
+
 function completionSound(){
-  if(!audioCtx||!master||volumeLevel===0)return;
-  const now=audioCtx.currentTime,g=audioCtx.createGain();
-  g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.22,now+.08);g.gain.exponentialRampToValueAtTime(.0001,now+4);
-  g.connect(master);
-  [174,261,392,523].forEach((f,i)=>{
-    const o=audioCtx.createOscillator(),og=audioCtx.createGain();
-    o.type='sine';o.frequency.value=f;og.gain.value=[.55,.30,.16,.08][i];
-    o.connect(og);og.connect(g);o.start(now);o.stop(now+4.05);
-  });
+  try{
+    gongAudio.volume=volumeLevel;
+    gongAudio.currentTime=0;
+    const p=gongAudio.play();
+    if(p&&p.catch)p.catch(()=>{});
+  }catch(e){}
 }
+
 function phaseRun(targetOrb,targetPhase,targetTimer,label,seconds){
   return new Promise(resolve=>{
     targetPhase.textContent=label;
@@ -177,6 +190,7 @@ async function runThree(){
     await phaseRun(orb,phase,timer,'Exhale',6);
   }
   await new Promise(r=>setTimeout(r,900));
+  stopBreathAudio();
   completionSound();
   home.style.opacity='0';home.style.pointerEvents='none';
   nextStage=7;
@@ -199,6 +213,7 @@ async function runRetreatStage(breaths){
     await phaseRun(retreatOrb,retreatPhase,retreatTimer,'Exhale',6);
   }
   await new Promise(r=>setTimeout(r,900));
+  stopBreathAudio();
   completionSound();
   retreat.classList.remove('show');
 
@@ -229,7 +244,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260813-v3',
+        '/sw.js?v=20260813-v4',
         { updateViaCache: 'none' }
       );
 
