@@ -1,24 +1,16 @@
-Three Deep Breaths — FINAL SYNCED AUDIO + FEMININE CUES
+Three Deep Breaths — FINAL v9
 
-Built from the latest elapsed-sync + cue package.
+Final-for-now build.
 
-New:
-- Audio is aligned to the same wall-clock session as the visual breathing.
-- On return from lock/background/tab switching, audio is corrected to the
-  exact current 10-second breathing phase.
-- Visible-page drift is corrected periodically.
-- “In” and “Exhale” are embedded in the breath loop used by EVERY session,
-  including the first 3 breaths.
-- Cues use a softer, higher-pitched feminine voice at a very low mix level.
+- Full words: Inhale and Exhale.
+- One consistent soft feminine voice across 3 / 7 / 12 / 21.
+- Each cue begins at its exact phase boundary.
+- Timer shows 0 for 40ms at a phase boundary only; it is a visual transition
+  marker, not an added second or breath.
+- The established elapsed-time clock remains the single source of truth for
+  count, phase, timer, circle and audio, including lock/background recovery.
+- All previous working audio, counts, volume/mute, gong, retreat flow,
+  button removal and cache behavior are retained.
+- Service-worker version v9.
 
-Retained:
-- green launch button disappears on start
-- visible 3 / 7 / 12 / 21 counts
-- Stay / if you feel → A little more → A while longer → Welcome back
-- 4s inhale / 6s exhale
-- circle + timer
-- volume/mute
-- gong
-- background audio and resume-on-return
-- network-first cache strategy
-- service-worker v7
+Deploy the complete package.

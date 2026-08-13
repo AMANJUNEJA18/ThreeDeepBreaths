@@ -182,7 +182,9 @@ function updateBreathingUI(session, nowMs){
   const inhale=within<4000;
   const phaseElapsed=inhale?within:within-4000;
   const phaseDuration=inhale?4000:6000;
-  const phaseSeconds=Math.max(0,Math.ceil((phaseDuration-phaseElapsed)/1000));
+  const transitionWindow=0.04;
+  const phaseRemaining=phaseDuration-phaseElapsed;
+  const phaseSeconds=phaseRemaining<=transitionWindow ? 0 : Math.ceil(phaseRemaining/1000);
 
   session.countEl.textContent='Breath '+breathIndex+' of '+session.breaths;
   session.phaseEl.textContent=inhale?'Inhale':'Exhale';
@@ -354,7 +356,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260813-v7',
+        '/sw.js?v=20260813-v9',
         { updateViaCache: 'none' }
       );
 
