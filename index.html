@@ -29,6 +29,7 @@ main{height:100dvh;display:flex;align-items:center;justify-content:center;text-a
 .phase{height:20px;font:13px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#657062}
 .timer{height:48px;font:36px -apple-system,BlinkMacSystemFont,sans-serif;color:var(--green);font-variant-numeric:tabular-nums}
 .count{height:18px;margin-bottom:12px;font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:var(--muted)}
+.retreat .count{height:18px;margin-bottom:12px;font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:var(--muted);font-variant-numeric:tabular-nums}
 button{cursor:pointer}
 .begin{border:0;border-radius:999px;padding:14px 25px;background:var(--green);color:white;font:15px -apple-system,BlinkMacSystemFont,sans-serif}
 .invite{position:absolute;width:min(88vw,420px);opacity:0;pointer-events:none;transition:opacity .7s ease}
@@ -168,6 +169,7 @@ function phaseRun(targetOrb,targetPhase,targetTimer,label,seconds){
 }
 async function runThree(){
   startAudio();
+  $('begin').style.display='none';
   $('begin').disabled=true;
   for(let i=1;i<=3;i++){
     count.textContent='Breath '+i+' of 3';
@@ -188,9 +190,11 @@ function showInvite(label,sub){
 async function runRetreatStage(breaths){
   invite.classList.remove('show');
   retreat.classList.add('show');
+  retreatCount.style.visibility='visible';
   startAudio();
   for(let i=1;i<=breaths;i++){
     retreatCount.textContent='Breath '+i+' of '+breaths;
+    retreatCount.style.visibility='visible';
     await phaseRun(retreatOrb,retreatPhase,retreatTimer,'Inhale',4);
     await phaseRun(retreatOrb,retreatPhase,retreatTimer,'Exhale',6);
   }
@@ -225,7 +229,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260813-v2',
+        '/sw.js?v=20260813-v3',
         { updateViaCache: 'none' }
       );
 

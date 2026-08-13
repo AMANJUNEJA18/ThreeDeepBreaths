@@ -1,22 +1,29 @@
-Three Deep Breaths — FINAL BREATH COUNTS
+Three Deep Breaths — FINAL COUNTS VISIBLE
 
-Based on the latest cache-fixed app package.
+Built from the latest cache-fixed breath-count package.
 
-New:
-- Retreat sessions show Breath 1 of 7 through 7 of 7.
-- The same applies to 12 and 21.
-- The total is visible only while practicing; it is not shown as a choice.
+Changes in this release:
+1. The green "Three Deep Breaths" launch button disappears immediately when
+   the first breathing session starts. It is not merely disabled.
+2. Retreat counts are explicitly visible during active retreat sessions:
+   Breath 1 of 7 ... 7 of 7; 1 of 12 ... 12 of 12; 1 of 21 ... 21 of 21.
+3. The retreat count uses the same subtle standard sizing as the original
+   Breath 1 of 3 indicator.
+4. Service worker/cache release bumped to v3 so this deployment is forced
+   through the update path.
+5. HTML remains network-first; old service-worker caches are removed.
 
-Retained:
+All other existing functionality is retained:
 - 3 breaths
 - 4s inhale / 6s exhale
-- synchronized circle and timer
+- synchronized circle
+- timer/countdown
 - soothing breath sound
-- soft completion sound
+- completion gong
 - working volume control
-- speaker becomes muted at zero
+- speaker -> muted speaker at zero
 - Safari-compatible audio
-- Stay / if you feel → A little more → A while longer → Welcome back
-- network-first HTML and versioned service-worker update strategy
-
-Deploy all files to the existing app repository.
+- Stay / if you feel
+- A little more
+- A while longer
+- Welcome back

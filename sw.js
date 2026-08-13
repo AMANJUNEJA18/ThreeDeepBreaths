@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'tdb-final-20260813-v2';
+const CACHE_VERSION = 'tdb-final-20260813-v3';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const STATIC_ASSETS = [
   '/manifest.json',
