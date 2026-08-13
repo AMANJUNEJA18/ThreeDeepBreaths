@@ -1,27 +1,37 @@
-Three Deep Breaths. — Retreat v4 FINAL
+Three Deep Breaths. — FINAL CLEAN BUILD
 
-Design principle:
-Don't ask them to stay. Make them feel safe to stay.
+Deployment:
+  app.threedeepbreaths.in
 
 Flow:
-3 breaths -> quiet permission to stay -> 7 breaths
-7 breaths -> quiet permission to stay -> 12 breaths
-12 breaths -> quiet permission to stay -> 21 breaths
-21 breaths -> soft completion sound -> Welcome back.
+  3 breaths
+  -> Stay / if you feel
+  -> 7 breaths
+  -> A little more
+  -> 12 breaths
+  -> A while longer
+  -> 21 breaths
+  -> Welcome back
 
-The invitation is intentionally subtle. There are no emotion labels,
-no numbers shown as choices, no marketing language, no streaks, no scores,
-and no pressure to continue.
+The user never sees the 7/12/21 numbers as choices.
 
-Every stage uses the same complete breathing engine:
+Every breathing stage has:
 - 4-second inhale / 6-second exhale
 - synchronized circle
-- visible countdown
-- breath sound
+- live countdown
+- soothing breath sound
 - soft completion sound
 - live volume control
-- speaker icon switches to muted speaker at zero
+- speaker icon changes to muted speaker at zero
 - Safari-compatible Web Audio
-- PWA manifest/service worker
 
-Upload all files to the existing ThreeDeepBreaths app repository.
+Cache/update strategy:
+- HTML navigations are network-first with cache:'no-store'
+- service worker uses updateViaCache:'none'
+- service worker calls skipWaiting() and clients.claim()
+- old service-worker caches are deleted on activation
+- static assets remain cached for PWA reliability
+
+IMPORTANT:
+The homepage domain is separate from this app repository.
+Do not deploy this package to the homepage repository.
