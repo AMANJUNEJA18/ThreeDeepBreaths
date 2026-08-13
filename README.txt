@@ -1,14 +1,24 @@
-Three Deep Breaths — FINAL CLEAN SOUND v8
+Three Deep Breaths — FINAL SYNCED AUDIO + FEMININE CUES
 
-Built from the last working elapsed-time/audio-sync code and the last
-pre-cue musical breath bed. The musical bed is restored from that package
-and is the base sound; it is not regenerated.
+Built from the latest elapsed-sync + cue package.
 
-Added only:
-- very quiet feminine “Inhale” at the exact start of inhale
-- very quiet feminine “Exhale” at the exact start of exhale
-- 40ms visual zero transition, without adding time to the breathing clock
+New:
+- Audio is aligned to the same wall-clock session as the visual breathing.
+- On return from lock/background/tab switching, audio is corrected to the
+  exact current 10-second breathing phase.
+- Visible-page drift is corrected periodically.
+- “In” and “Exhale” are embedded in the breath loop used by EVERY session,
+  including the first 3 breaths.
+- Cues use a softer, higher-pitched feminine voice at a very low mix level.
 
-Retained: lock/count/audio sync, 3/7/12/21 counts, button removal,
-4s/6s breathing, circle/timer, volume/mute, gong, retreat flow,
-network-first cache and service-worker v8.
+Retained:
+- green launch button disappears on start
+- visible 3 / 7 / 12 / 21 counts
+- Stay / if you feel → A little more → A while longer → Welcome back
+- 4s inhale / 6s exhale
+- circle + timer
+- volume/mute
+- gong
+- background audio and resume-on-return
+- network-first cache strategy
+- service-worker v7
