@@ -164,38 +164,93 @@ function completionSound(){
   }catch(e){}
 }
 
-function phaseRun(targetOrb,targetPhase,targetTimer,label,seconds){
+let activeSession=null;
+
+function updateBreathingUI(session, nowMs){
+  if(!activeSession || activeSession!==session) return false;
+
+  const elapsed=Math.max(0, nowMs-session.startMs);
+  const total=session.breaths*10000;
+
+  if(elapsed>=total){
+    session.finished=true;
+    return true;
+  }
+
+  const breathIndex=Math.floor(elapsed/10000)+1;
+  const within=elapsed%10000;
+  const inhale=within<4000;
+  const phaseElapsed=inhale?within:within-4000;
+  const phaseDuration=inhale?4000:6000;
+  const phaseSeconds=Math.max(0,Math.ceil((phaseDuration-phaseElapsed)/1000));
+
+  session.countEl.textContent='Breath '+breathIndex+' of '+session.breaths;
+  session.phaseEl.textContent=inhale?'Inhale':'Exhale';
+  session.timerEl.textContent=String(phaseSeconds);
+
+  const progress=phaseElapsed/phaseDuration;
+  session.orbEl.className='orb '+(inhale?'inhale':'exhale');
+  session.orbEl.style.transitionDuration='0.08s';
+  session.orbEl.style.transform=inhale
+    ? 'scale('+(1.0+0.22*progress)+')'
+    : 'scale('+(1.22-0.30*progress)+')';
+
+  return false;
+}
+
+function runElapsedSession(breaths, orbEl, phaseEl, timerEl, countEl){
   return new Promise(resolve=>{
-    targetPhase.textContent=label;
-    targetOrb.style.transitionDuration=seconds+'s';
-    targetOrb.className='orb '+(label==='Inhale'?'inhale':'exhale');
-    breathSound(label,seconds);
-    const end=performance.now()+seconds*1000;
+    const session={
+      breaths,
+      startMs:Date.now(),
+      orbEl,phaseEl,timerEl,countEl,
+      finished:false,
+      resolve
+    };
+    activeSession=session;
+
     function tick(){
-      const left=Math.max(0,end-performance.now());
-      targetTimer.textContent=left>0?Math.ceil(left/1000):'';
-      if(left<=0){targetTimer.textContent='';resolve();return}
+      if(!activeSession || activeSession!==session) return;
+
+      const done=updateBreathingUI(session,Date.now());
+
+      if(done){
+        session.orbEl.style.transform='scale(1)';
+        session.timerEl.textContent='';
+        session.phaseEl.textContent='';
+        activeSession=null;
+        resolve();
+        return;
+      }
+
       requestAnimationFrame(tick);
     }
+
     tick();
   });
 }
+
+function syncActiveSession(){
+  if(activeSession) updateBreathingUI(activeSession,Date.now());
+}
+
 async function runThree(){
   startAudio();
   $('begin').style.display='none';
   $('begin').disabled=true;
-  for(let i=1;i<=3;i++){
-    count.textContent='Breath '+i+' of 3';
-    await phaseRun(orb,phase,timer,'Inhale',4);
-    await phaseRun(orb,phase,timer,'Exhale',6);
-  }
+
+  await runElapsedSession(3,orb,phase,timer,count);
+
   await new Promise(r=>setTimeout(r,900));
   stopBreathAudio();
   completionSound();
-  home.style.opacity='0';home.style.pointerEvents='none';
+
+  home.style.opacity='0';
+  home.style.pointerEvents='none';
   nextStage=7;
   showInvite('Stay','if you feel');
 }
+
 function showInvite(label,sub){
   $('inviteButton').textContent=label;
   $('inviteSubtle').textContent=sub||'';
@@ -206,12 +261,15 @@ async function runRetreatStage(breaths){
   retreat.classList.add('show');
   retreatCount.style.visibility='visible';
   startAudio();
-  for(let i=1;i<=breaths;i++){
-    retreatCount.textContent='Breath '+i+' of '+breaths;
-    retreatCount.style.visibility='visible';
-    await phaseRun(retreatOrb,retreatPhase,retreatTimer,'Inhale',4);
-    await phaseRun(retreatOrb,retreatPhase,retreatTimer,'Exhale',6);
-  }
+
+  await runElapsedSession(
+    breaths,
+    retreatOrb,
+    retreatPhase,
+    retreatTimer,
+    retreatCount
+  );
+
   await new Promise(r=>setTimeout(r,900));
   stopBreathAudio();
   completionSound();
@@ -221,6 +279,7 @@ async function runRetreatStage(breaths){
     welcome.classList.add('show');
     return;
   }
+
   if(breaths===7){
     nextStage=12;
     showInvite('A little more','');
@@ -229,6 +288,7 @@ async function runRetreatStage(breaths){
     showInvite('A while longer','');
   }
 }
+
 $('begin').addEventListener('click',runThree);
 $('inviteButton').addEventListener('click',()=>runRetreatStage(nextStage));
 $('inviteDone').addEventListener('click',()=>{
@@ -250,10 +310,17 @@ function resumeAudioAfterReturn(){
 }
 
 document.addEventListener('visibilitychange',()=>{
+  syncActiveSession();
   if(document.visibilityState==='visible') resumeAudioAfterReturn();
 });
-window.addEventListener('pageshow',resumeAudioAfterReturn);
-window.addEventListener('focus',resumeAudioAfterReturn);
+window.addEventListener('pageshow',()=>{
+  syncActiveSession();
+  resumeAudioAfterReturn();
+});
+window.addEventListener('focus',()=>{
+  syncActiveSession();
+  resumeAudioAfterReturn();
+});
 
 setVolume($('volume').value);
 
@@ -261,7 +328,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260813-v5',
+        '/sw.js?v=20260813-v6',
         { updateViaCache: 'none' }
       );
 
