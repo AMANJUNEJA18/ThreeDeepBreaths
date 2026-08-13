@@ -1,24 +1,27 @@
-Three Deep Breaths — FINAL SYNCED AUDIO + FEMININE CUES
+Three Deep Breaths. — Retreat v4 FINAL
 
-Built from the latest elapsed-sync + cue package.
+Design principle:
+Don't ask them to stay. Make them feel safe to stay.
 
-New:
-- Audio is aligned to the same wall-clock session as the visual breathing.
-- On return from lock/background/tab switching, audio is corrected to the
-  exact current 10-second breathing phase.
-- Visible-page drift is corrected periodically.
-- “In” and “Exhale” are embedded in the breath loop used by EVERY session,
-  including the first 3 breaths.
-- Cues use a softer, higher-pitched feminine voice at a very low mix level.
+Flow:
+3 breaths -> quiet permission to stay -> 7 breaths
+7 breaths -> quiet permission to stay -> 12 breaths
+12 breaths -> quiet permission to stay -> 21 breaths
+21 breaths -> soft completion sound -> Welcome back.
 
-Retained:
-- green launch button disappears on start
-- visible 3 / 7 / 12 / 21 counts
-- Stay / if you feel → A little more → A while longer → Welcome back
-- 4s inhale / 6s exhale
-- circle + timer
-- volume/mute
-- gong
-- background audio and resume-on-return
-- network-first cache strategy
-- service-worker v7
+The invitation is intentionally subtle. There are no emotion labels,
+no numbers shown as choices, no marketing language, no streaks, no scores,
+and no pressure to continue.
+
+Every stage uses the same complete breathing engine:
+- 4-second inhale / 6-second exhale
+- synchronized circle
+- visible countdown
+- breath sound
+- soft completion sound
+- live volume control
+- speaker icon switches to muted speaker at zero
+- Safari-compatible Web Audio
+- PWA manifest/service worker
+
+Upload all files to the existing ThreeDeepBreaths app repository.
