@@ -61,7 +61,7 @@ body.night-mode .footer{color:#737d75}
 .night-session .night-orb{width:230px;height:230px;border:1px solid rgba(238,233,222,.22);border-radius:50%;margin:28px auto 30px;transition:transform .12s ease-in-out}
 .night-session .night-phase{height:20px;font:12px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#909b92}
 .night-session .night-timer{height:42px;font:30px -apple-system,BlinkMacSystemFont,sans-serif;color:#d8d8cf;font-variant-numeric:tabular-nums}
-.night-session .night-count{height:22px;margin-top:2px;font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#737e75;font-variant-numeric:tabular-nums}
+.night-session .night-count-spacer{height:8px}.night-count{height:22px;margin-top:2px;font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#737e75;font-variant-numeric:tabular-nums}
 .night-session .night-focus{font:12px -apple-system,BlinkMacSystemFont,sans-serif;color:#9da79f;margin-top:12px}
 .night-home{display:inline-block;margin-top:24px;background:none;border:0;color:#737e75;font:12px -apple-system,BlinkMacSystemFont,sans-serif}
 .volume{position:absolute;right:24px;bottom:calc(24px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;color:#657062;opacity:.8}
@@ -106,7 +106,7 @@ body.night-mode .footer{color:#737d75}
 
 <section class="night" id="night">
   <div class="night-title">Night.</div>
-  <div class="night-subtle">A little retreat into the night.<br>For the last quiet moments of the day.<br>Follow the breath and let sleep arrive.</div>
+  <div class="night-subtle">A little retreat into the night.<br>For the last quiet moments of the day.<br>Follow the breath into sleep.</div>
   <div class="night-options">
     <button class="night-option" data-focus="Heart">Heart</button>
     <button class="night-option" data-focus="Hara">Hara</button>
@@ -381,21 +381,6 @@ document.querySelectorAll('.night-option').forEach(button=>{
     nightFocus.textContent=nightSelectedFocus;
   });
 });
-function openNightFromQuery(){
-  const params=new URLSearchParams(window.location.search);
-  if(params.get('night')!=='1') return;
-  home.style.opacity='0';
-  home.style.pointerEvents='none';
-  document.body.classList.add('night-mode');
-  night.classList.add('show');
-  document.querySelectorAll('.night-option').forEach(b=>b.classList.remove('selected'));
-  const defaultOption=document.querySelector('.night-option[data-focus="Anywhere"]');
-  if(defaultOption) defaultOption.classList.add('selected');
-  nightSelectedFocus='Anywhere';
-  nightFocus.textContent='Anywhere';
-  try{ history.replaceState(null,'',window.location.pathname); }catch(e){}
-}
-
 $('nightOpen').addEventListener('click',()=>{
   home.style.opacity='0';
   home.style.pointerEvents='none';
@@ -474,7 +459,6 @@ window.addEventListener('focus',()=>{
 });
 
 setVolume($('volume').value);
-openNightFromQuery();
 
 setInterval(()=>{
   if(activeSession && document.visibilityState==='visible'){
@@ -486,7 +470,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260814-night-v3',
+        '/sw.js?v=20260813-v9',
         { updateViaCache: 'none' }
       );
 
