@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'tdb-final-20260813-v8';
+const CACHE_VERSION = 'tdb-final-20260813-v9';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const STATIC_ASSETS = [
   '/manifest.json',
@@ -41,6 +41,13 @@ self.addEventListener('fetch', event => {
   ) {
     event.respondWith(
       fetch(request, { cache: 'no-store' })
+        .then(response => {
+          const copy = response.clone();
+          caches.open(STATIC_CACHE)
+            .then(cache => cache.put('/index.html', copy))
+            .catch(() => {});
+          return response;
+        })
         .catch(() => caches.match('/index.html'))
     );
     return;

@@ -45,6 +45,25 @@ button{cursor:pointer}
 .welcome{position:absolute;width:min(88vw,420px);opacity:0;pointer-events:none;transition:opacity .8s ease}
 .welcome.show{opacity:1;pointer-events:auto}
 .welcome .message{font-size:34px;letter-spacing:-.025em}
+body.night-mode{background:#0f1712;color:#eee9de}
+body.night-mode .brand{color:#d9d8cd}
+body.night-mode .footer{color:#737d75}
+.night{position:absolute;width:min(88vw,420px);opacity:0;pointer-events:none;transition:opacity .8s ease;color:#eee9de}
+.night.show{opacity:1;pointer-events:auto}
+.night .night-title{font-size:42px;line-height:1.1;letter-spacing:-.035em;margin-bottom:16px}
+.night .night-subtle{font:12px -apple-system,BlinkMacSystemFont,sans-serif;color:#9da79f;letter-spacing:.025em;line-height:1.6}
+.night-options{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:28px 0 14px}
+.night-option{display:inline-flex;align-items:center;justify-content:center;min-width:110px;min-height:46px;border:1px solid #46534a;border-radius:999px;background:rgba(255,255,255,.035);color:#e5e2d8;font:14px -apple-system,BlinkMacSystemFont,sans-serif}
+.night-option.selected{border-color:#8d9a90;background:rgba(255,255,255,.08)}
+.night-begin{margin-top:24px;border:1px solid #59675d;border-radius:999px;padding:13px 25px;background:rgba(255,255,255,.045);color:#eee9de;font:14px -apple-system,BlinkMacSystemFont,sans-serif}
+.night-session{position:absolute;width:min(88vw,420px);opacity:0;pointer-events:none;transition:opacity .9s ease;color:#eee9de}
+.night-session.show{opacity:1;pointer-events:auto}
+.night-session .night-orb{width:230px;height:230px;border:1px solid rgba(238,233,222,.22);border-radius:50%;margin:28px auto 30px;transition:transform .12s ease-in-out}
+.night-session .night-phase{height:20px;font:12px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#909b92}
+.night-session .night-timer{height:42px;font:30px -apple-system,BlinkMacSystemFont,sans-serif;color:#d8d8cf;font-variant-numeric:tabular-nums}
+.night-session .night-count{height:18px;font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#737e75;font-variant-numeric:tabular-nums}
+.night-session .night-focus{font:12px -apple-system,BlinkMacSystemFont,sans-serif;color:#9da79f;margin-top:12px}
+.night-home{display:inline-block;margin-top:24px;background:none;border:0;color:#737e75;font:12px -apple-system,BlinkMacSystemFont,sans-serif}
 .volume{position:absolute;right:24px;bottom:calc(24px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;color:#657062;opacity:.8}
 .volume input{width:82px;accent-color:var(--green);height:28px;margin:0}
 .volume svg{display:block}
@@ -63,6 +82,7 @@ button{cursor:pointer}
   <div class="timer" id="timer"></div>
   <div class="count" id="count"></div>
   <button class="begin" id="begin">Three Deep Breaths</button>
+  <button class="done" id="nightOpen" style="margin-top:22px">Night</button>
 </section>
 
 <section class="invite" id="invite">
@@ -81,7 +101,32 @@ button{cursor:pointer}
 
 <section class="welcome" id="welcome">
   <div class="message">Welcome back.</div>
-  <button class="stay" id="homeButton" style="margin-top:24px">Home</button>
+  <button class="done" id="welcomeHome">Home</button>
+</section>
+
+<section class="night" id="night">
+  <div class="night-title">Night.</div>
+  <div class="night-subtle">A little retreat into the night.<br>Breathe softly. Let sleep arrive.</div>
+  <div class="night-options">
+    <button class="night-option" data-focus="Heart">Heart</button>
+    <button class="night-option" data-focus="Hara">Hara</button>
+    <button class="night-option" data-focus="Anywhere">Anywhere</button>
+  </div>
+  <div class="night-subtle">Heart — the centre of the chest.<br>Hara — a little below the navel, deep within the lower belly.</div>
+  <button class="night-begin" id="nightBegin">Begin gently</button>
+  <button class="night-home" id="nightBack">Back</button>
+</section>
+
+<section class="night-session" id="nightSession">
+  <div class="night-subtle">Night</div>
+  <div class="night-title" style="font-size:34px;margin-top:18px">Breathe softly.</div>
+  <div class="night-count" id="nightCount">Breath 1 of 108</div>
+  <div class="night-orb" id="nightOrb"></div>
+  <div class="night-phase" id="nightPhase"></div>
+  <div class="night-timer" id="nightTimer"></div>
+  <div class="night-focus" id="nightFocus"></div>
+  <div class="night-subtle" style="margin-top:18px">Let sleep arrive whenever it does.</div>
+  <button class="night-home" id="nightLeave">Leave whenever you're ready</button>
 </section>
 
 <audio id="breathAudio" preload="auto" loop playsinline></audio>
@@ -105,6 +150,8 @@ button{cursor:pointer}
 'use strict';
 const $=id=>document.getElementById(id);
 const home=$('home'),invite=$('invite'),retreat=$('retreat'),welcome=$('welcome');
+const night=$('night'),nightSession=$('nightSession'),nightOrb=$('nightOrb'),nightPhase=$('nightPhase'),nightTimer=$('nightTimer'),nightCount=$('nightCount'),nightFocus=$('nightFocus');
+let nightSelectedFocus='Anywhere';
 const orb=$('orb'),phase=$('phase'),timer=$('timer'),count=$('count');
 const retreatOrb=$('retreatOrb'),retreatPhase=$('retreatPhase'),retreatTimer=$('retreatTimer'),retreatCount=$('retreatCount');
 let audioCtx=null,master=null,volumeLevel=.55, nextStage=7;
@@ -183,7 +230,9 @@ function updateBreathingUI(session, nowMs){
   const inhale=within<4000;
   const phaseElapsed=inhale?within:within-4000;
   const phaseDuration=inhale?4000:6000;
-  const phaseSeconds=Math.max(0,Math.ceil((phaseDuration-phaseElapsed)/1000));
+  const transitionWindow=0.04;
+  const phaseRemaining=phaseDuration-phaseElapsed;
+  const phaseSeconds=phaseRemaining<=transitionWindow ? 0 : Math.max(0,Math.ceil(phaseRemaining/1000));
 
   session.countEl.textContent='Breath '+breathIndex+' of '+session.breaths;
   session.phaseEl.textContent=inhale?'Inhale':'Exhale';
@@ -250,6 +299,25 @@ function syncActiveSession(){
   if(activeSession) updateBreathingUI(activeSession,Date.now());
 }
 
+async function runNight(){
+  night.classList.remove('show');
+  nightSession.classList.add('show');
+  home.style.opacity='0';
+  home.style.pointerEvents='none';
+  invite.classList.remove('show');
+  retreat.classList.remove('show');
+  welcome.classList.remove('show');
+  startAudio();
+
+  await runElapsedSession(108,nightOrb,nightPhase,nightTimer,nightCount);
+
+  stopBreathAudio();
+  completionSound();
+  nightSession.classList.remove('show');
+  document.body.classList.remove('night-mode');
+  welcome.classList.add('show');
+}
+
 async function runThree(){
   startAudio();
   $('begin').style.display='none';
@@ -305,6 +373,40 @@ async function runRetreatStage(breaths){
   }
 }
 
+document.querySelectorAll('.night-option').forEach(button=>{
+  button.addEventListener('click',()=>{
+    document.querySelectorAll('.night-option').forEach(b=>b.classList.remove('selected'));
+    button.classList.add('selected');
+    nightSelectedFocus=button.dataset.focus||'Anywhere';
+    nightFocus.textContent=nightSelectedFocus;
+  });
+});
+$('nightOpen').addEventListener('click',()=>{
+  home.style.opacity='0';
+  home.style.pointerEvents='none';
+  document.body.classList.add('night-mode');
+  night.classList.add('show');
+  document.querySelectorAll('.night-option').forEach(b=>b.classList.remove('selected'));
+  const defaultOption=document.querySelector('.night-option[data-focus="Anywhere"]');
+  if(defaultOption) defaultOption.classList.add('selected');
+  nightSelectedFocus='Anywhere';
+  nightFocus.textContent='Anywhere';
+});
+$('nightBegin').addEventListener('click',runNight);
+$('nightBack').addEventListener('click',()=>{
+  night.classList.remove('show');
+  document.body.classList.remove('night-mode');
+  home.style.opacity='1';
+  home.style.pointerEvents='auto';
+});
+$('nightLeave').addEventListener('click',()=>{
+  stopBreathAudio();
+  activeSession=null;
+  nightSession.classList.remove('show');
+  document.body.classList.remove('night-mode');
+  home.style.opacity='1';
+  home.style.pointerEvents='auto';
+});
 $('begin').addEventListener('click',runThree);
 $('inviteButton').addEventListener('click',()=>runRetreatStage(nextStage));
 $('inviteDone').addEventListener('click',()=>{
@@ -313,14 +415,23 @@ $('inviteDone').addEventListener('click',()=>{
 $('leave').addEventListener('click',()=>{
   retreat.classList.remove('show');welcome.classList.add('show');
 });
-$('homeButton').addEventListener('click',()=>{
-  window.location.href='/';
+$('welcomeHome').addEventListener('click',()=>{
+  stopBreathAudio();
+  activeSession=null;
+  welcome.classList.remove('show');
+  document.body.classList.remove('night-mode');
+  home.style.opacity='1';
+  home.style.pointerEvents='auto';
+  $('begin').style.display='inline-block';
+  $('begin').disabled=false;
+  count.textContent='';
+  phase.textContent='Ready';
+  timer.textContent='';
 });
 $('volume').addEventListener('input',e=>setVolume(e.target.value));
 
 function resumeAudioAfterReturn(){
   if(typeof breathAudio==='undefined') return;
-  if(!activeSession) return;
   if(!breathAudio.src || breathAudio.paused === false) return;
   try{
     breathAudio.volume=volumeLevel;
@@ -359,7 +470,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260813-v8',
+        '/sw.js?v=20260813-v9',
         { updateViaCache: 'none' }
       );
 
