@@ -1,27 +1,7 @@
-Three Deep Breaths — NIGHT FINAL
+Three Deep Breaths — Final Deployable v10
 
-Built directly from the last-known-good FINAL DEPLOYABLE package.
+Includes the established Breathe flow (3 → 7 → 12 → 21), Night 108 experience, lock/background synchronization, volume control, current softer mmmm-inspired breath audio, and the new minimal Be. companion doorway.
 
-Existing experience preserved:
-- 3 breaths → Stay → 7 → A little more → 12 → A while longer → 21
-- continuous working breath-loop.wav (unchanged byte-for-byte)
-- 4s inhale / 6s exhale
-- elapsed-time count/audio/circle synchronization
-- lock/background audio recovery
-- volume/mute
-- gong
-- network-first cache/service-worker strategy
+Be. is intentionally minimal: You can just be here. Nothing to fix. Nothing to become. It is a quiet first version, without advice, emotional labels, or conversational dependency.
 
-New Night experience:
-- separate Night doorway on the home/app page
-- dark Night mode
-- Heart / Hara / Anywhere focus selection
-- subtle Heart/Hara location guidance
-- 108 breaths using the same proven elapsed-time breathing engine
-- same audio loop and lock/background synchronization
-- stops at 108 and returns to Welcome back
-- Welcome back has Home access
-
-No spoken Inhale/Exhale layer was added.
-The existing breath audio was not regenerated or modified.
-Service worker bumped to v9 for the new deployment.
+Deploy all files to the app.threedeepbreaths.in site root.

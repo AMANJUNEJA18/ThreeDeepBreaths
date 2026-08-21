@@ -1,10 +1,12 @@
-const CACHE_VERSION = 'tdb-final-20260817-mmmm-v8';
+const CACHE_VERSION = 'tdb-final-20260821-mmmm-v10';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
-  '/og-image.jpg'
+  '/og-image.jpg',
+  '/breath-loop-mmmm-v9.wav',
+  '/gong.wav'
 ];
 
 self.addEventListener('install', event => {

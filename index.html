@@ -64,6 +64,10 @@ body.night-mode .footer{color:#737d75}
 .night-session .night-count-spacer{height:8px}.night-count{height:22px;margin-top:2px;font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#737e75;font-variant-numeric:tabular-nums}
 .night-session .night-focus{font:12px -apple-system,BlinkMacSystemFont,sans-serif;color:#9da79f;margin-top:12px}
 .night-home{display:inline-block;margin-top:24px;background:none;border:0;color:#737e75;font:12px -apple-system,BlinkMacSystemFont,sans-serif}
+.be{position:absolute;width:min(88vw,420px);opacity:0;pointer-events:none;transition:opacity .8s ease;text-align:center}
+.be.show{opacity:1;pointer-events:auto}
+.be-title{font-size:34px;line-height:1.15;letter-spacing:-.03em;margin-bottom:22px}
+.be-subtle{font:12px -apple-system,BlinkMacSystemFont,sans-serif;color:#8A9088;letter-spacing:.025em}
 .volume{position:absolute;right:24px;bottom:calc(24px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;color:#657062;opacity:.8}
 .volume input{width:82px;accent-color:var(--green);height:28px;margin:0}
 .volume svg{display:block}
@@ -83,6 +87,7 @@ body.night-mode .footer{color:#737d75}
   <div class="count" id="count"></div>
   <button class="begin" id="begin">Three Deep Breaths</button>
   <button class="done" id="nightOpen" style="margin-top:22px">Night</button>
+  <button class="done" id="beOpen" style="margin-top:18px">Be.</button>
 </section>
 
 <section class="invite" id="invite">
@@ -129,6 +134,13 @@ body.night-mode .footer{color:#737d75}
   <button class="night-home" id="nightLeave">Leave whenever you're ready</button>
 </section>
 
+<section class="be" id="be">
+  <div class="be-title">You can just be here.</div>
+  <div class="be-subtle">Nothing to fix.</div>
+  <div class="be-subtle" style="margin-top:6px">Nothing to become.</div>
+  <button class="night-home" id="beBack">Back</button>
+</section>
+
 <audio id="breathAudio" preload="auto" loop playsinline></audio>
 <audio id="gongAudio" preload="auto"></audio>
 
@@ -141,7 +153,7 @@ body.night-mode .footer{color:#737d75}
       <path d="M4 9v6h4l5 4V5L8 9H4z"></path><path d="M17 9l4 6"></path><path d="M21 9l-4 6"></path>
     </svg>
   </span>
-  <input id="volume" type="range" min="0" max="100" value="55" aria-label="Volume">
+  <input id="volume" type="range" min="0" max="100" value="70" aria-label="Volume">
 </div>
 <div class="footer">No login. No tracking. Just a pause.</div>
 </main>
@@ -174,7 +186,7 @@ let nativeAudioReady=false;
 
 function startAudio(){
   try{
-    breathAudio.src='./breath-loop.wav';
+    breathAudio.src='./breath-loop-mmmm-v9.wav';
     gongAudio.src='./gong.wav';
     breathAudio.volume=volumeLevel;
     gongAudio.volume=volumeLevel;
@@ -407,6 +419,17 @@ $('nightOpen').addEventListener('click',()=>{
   nightSelectedFocus='Anywhere';
   nightFocus.textContent='Anywhere';
 });
+$('beOpen').addEventListener('click',()=>{
+  home.style.opacity='0';
+  home.style.pointerEvents='none';
+  document.body.classList.remove('night-mode');
+  be.classList.add('show');
+});
+$('beBack').addEventListener('click',()=>{
+  be.classList.remove('show');
+  home.style.opacity='1';
+  home.style.pointerEvents='auto';
+});
 $('nightBegin').addEventListener('click',runNight);
 openNightFromQuery();
 $('nightBack').addEventListener('click',()=>{
@@ -486,7 +509,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260817-mmmm-v8',
+        '/sw.js?v=20260821-mmmm-v10',
         { updateViaCache: 'none' }
       );
 
