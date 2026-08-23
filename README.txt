@@ -1,16 +1,29 @@
-Three Deep Breaths — Final Deployable v19
+Three Deep Breaths — Final Deployable v20
 
-Includes the established Breathe flow (3 → 7 → 12 → 21), Night 108 experience, lock/background synchronization, volume control, the softer mmmm-inspired breath audio, and the Be. companion.
+This build is based on the last known-good Be v18 architecture, with the v19 interaction changes rolled back where they caused the existing Be spaces to disappear or stop responding.
 
-BE.
-- Be home initially shows only “A little space to be.”
-- The text disappears permanently for that visit once the user begins scrolling.
-- Feed: familiar vertical scrolling through endless blank spaces.
-- Reels: the same blank card visual language as Dating Cards, but without ×/✓. Swipe up/down to move endlessly through blank cards.
-- Dating Cards: before opening a card, left/right swipe moves to the next card; × and ✓ also move to the next card. Every new card enters from the right, regardless of whether the preceding action was left, right, ×, or ✓.
-- Opening a Dating Card makes it full-screen. Inside the opened card, vertical scrolling is available; left/right swipe is disabled; ×/✓ are the only ways to move to the next card.
-- Inner Observatory remains separate: “What’s showing up inside?” with “thought · feeling · sensation · or nothing”. A soft “Here.” acknowledgement appears after Done without interpreting the observation.
-- No advice, emotional labels, conversational dependency, tracking, or gamification.
+Established functionality preserved:
+- Breathe: 3 → 7 → 12 → 21
+- Night: 108 breaths with Heart / Hara / Anywhere
+- lock/background synchronization
+- volume control
+- softer mmmm-inspired breath audio
+- Welcome Back → Home
+- main Breathe / Night / Be navigation
 
-DEPLOY
+Be. philosophy:
+A quiet space without advice, emotional labels, interpretation, or conversational dependency. The product does not explain or promise an awareness outcome.
+
+Be spaces:
+- Feed: familiar vertical scrolling through blank pages. Initially shows the subtle line “A little space to be.” Once the user starts scrolling, that line fades away and does not return during that visit.
+- Reels: the same blank-card visual language as Dating Cards, but arranged vertically. One blank card fills the Be viewport at a time. Swipe up or down to move endlessly through blank cards. No cross or tick controls.
+- Cards: familiar dating-card browsing. When the card is not opened, left/right swipe and ×/✓ both move to the next blank card. Every new card enters from the right. Tapping a card opens it full-screen; inside the opened card, vertical scrolling is allowed, left/right swipe is disabled, and ×/✓ are the only ways to move to the next card. The next card also enters from the right.
+- Inner Observatory: “What’s showing up inside?” with “thought · feeling · sensation · or nothing”. After an observation is submitted, Be acknowledges softly with “Here.” rather than interpreting or advising. Closing the Observatory returns to the Be space the user came from.
+
+The deeper design philosophy is to hold space, observe before interpreting, preserve before explaining, and gradually return the person to their own awareness/life without explicitly teaching or promising that outcome.
+
+Deployment:
 Deploy all files to the app.threedeepbreaths.in site root.
+
+Cache version:
+v20 — bump ensures the new index and behaviour replace prior service-worker cached versions.

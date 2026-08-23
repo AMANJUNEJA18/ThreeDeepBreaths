@@ -72,20 +72,20 @@ body.night-mode .footer{color:#737d75}
 .be-close{position:absolute;right:20px;top:0;border:0;background:transparent;color:var(--muted);font:13px -apple-system,BlinkMacSystemFont,sans-serif;padding:8px}
 .be-stage{position:absolute;inset:0;overflow:hidden;touch-action:pan-y}
 .be-reels-stage{touch-action:pan-y;overscroll-behavior:contain}
-.be-reel-cards{height:100%;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px;overflow:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding:15vh 9vw;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-y}
-.be-reel-cards::-webkit-scrollbar{display:none}
-.be-reel-card{position:relative;height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);scroll-snap-align:center;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);display:flex;align-items:center;justify-content:center;touch-action:none}
-@media(max-width:700px){.be-reel-card{height:70vh;width:82vw;flex-basis:70vh}}
+.be-reel-cards{position:absolute;inset:0;overflow:hidden;touch-action:none}
+.be-reel-card{position:absolute;inset:0;width:100%;height:100%;background:transparent;display:flex;align-items:center;justify-content:center;touch-action:none;transition:transform .28s ease-out;will-change:transform}
 .be-feed-note{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:14px -apple-system,BlinkMacSystemFont,sans-serif;color:#7F887F;letter-spacing:.025em;pointer-events:none;z-index:2;transition:opacity .35s ease}.be-feed-note.hidden{opacity:0}
 .be-cards-stage{touch-action:pan-x}
 .be-page{height:100%;width:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex:0 0 100%;position:relative}
 .be-page::after{content:"";position:absolute;width:1px;height:1px;opacity:0}
 .be-scroll{height:100%;width:100%;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .be-scroll::-webkit-scrollbar{display:none}
-.be-cards{height:100%;width:100%;display:flex;align-items:center;gap:14px;overflow:hidden;padding:0 9vw;scrollbar-width:none;touch-action:pan-y;will-change:transform}
+.be-cards{position:absolute;inset:0;overflow:hidden;touch-action:none}
 .be-cards::-webkit-scrollbar{display:none}
 .be-card{position:relative;height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);scroll-snap-align:center;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);overflow:hidden;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;cursor:pointer;transition:height .3s ease,width .3s ease,border-radius .3s ease,box-shadow .3s ease}
 .be-card::-webkit-scrollbar{display:none}
+.be-cards .be-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:transform .28s ease-out,opacity .28s ease-out;will-change:transform;touch-action:none}
+.be-cards .be-card.fullscreen{transform:none}
 .be-card-space{height:180%;width:100%;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .be-card-space::-webkit-scrollbar{display:none}
 .be-card.fullscreen{position:fixed;inset:0;width:100vw;height:100dvh;z-index:30;border:0;border-radius:0;background:var(--paper);box-shadow:none;overflow:hidden;cursor:default}
@@ -184,7 +184,6 @@ body.night-mode .be{background:#0f1712;color:#eee9de}
     </div>
 
     <div class="be-stage" id="beFeedStage">
-      <div class="be-feed-note" id="beFeedNote">A little space to be.</div>
       <div class="be-scroll" id="beFeed" aria-label="Be feed"></div>
     </div>
 
@@ -514,7 +513,7 @@ $('nightOpen').addEventListener('click',()=>{
 });
 const be=$('be');
 const beFeedStage=$('beFeedStage'),beReelsStage=$('beReelsStage'),beCardsStage=$('beCardsStage');
-const beFeed=$('beFeed'),beReels=$('beReels'),beCards=$('beCards'),beFeedNote=$('beFeedNote');
+const beFeed=$('beFeed'),beReels=$('beReels'),beCards=$('beCards');
 const beFeedTab=$('beFeedTab'),beReelsTab=$('beReelsTab'),beCardsTab=$('beCardsTab'),beObserveTab=$('beObserveTab');
 const beObservePanel=$('beObservePanel'),beObserveInput=$('beObserveInput'),beObserveAck=$('beObserveAck'),beObserveQuestion=$('beObserveQuestion');
 let beMode='feed';
@@ -529,6 +528,12 @@ function makeBlankPages(container,count=11,card=false){
     }else{
       el.className=card?'be-card':'be-page';
       el.setAttribute('aria-hidden','true');
+      if(!card && container.id==='beFeed' && i===Math.floor(count/2)){
+        const note=document.createElement('div');
+        note.className='be-feed-note';
+        note.textContent='A little space to be.';
+        el.appendChild(note);
+      }
       if(card){
         const space=document.createElement('div');
         space.className='be-card-space';
@@ -547,8 +552,8 @@ function makeBlankPages(container,count=11,card=false){
             requestAnimationFrame(()=>space.scrollTop=0);
           }
         });
-        no.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');beCardNext(-1);});
-        yes.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');beCardNext(1);});
+        no.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');nextCard();});
+        yes.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');nextCard();});
       }
     }
     container.appendChild(el);
@@ -558,20 +563,19 @@ function makeBlankPages(container,count=11,card=false){
 function setupCircularScroll(container,axis='y'){
   let resetting=false;
   const middle=Math.floor(container.children.length/2);
-  const step=()=> axis==='y' ? container.clientHeight : container.clientWidth;
+  const step=()=>{
+    if(axis==='y') return container.clientHeight || window.innerHeight;
+    const card=container.querySelector('.be-card');
+    return card ? card.getBoundingClientRect().width+14 : container.clientWidth;
+  };
   const recenter=()=>{
     const s=step(); if(!s)return;
-    if(axis==='y'){
-      const child=container.children[0];
-      const h=child ? child.getBoundingClientRect().height + (axis==='y' && container===beReels ? 14 : 0) : container.clientHeight;
-      container.scrollTop=middle*h;
-    }
+    if(axis==='y')container.scrollTop=middle*s;
+    else container.scrollLeft=Math.max(0,middle*s-container.clientWidth/2+s/2);
   };
   const onScroll=()=>{
     if(resetting)return;
-    if(container===beFeed && beFeedNote && Math.abs(container.scrollTop)>8) beFeedNote.classList.add('hidden');
-    const s=axis==='y' ? (container===beReels ? (container.children[0]?.getBoundingClientRect().height||container.clientHeight)+14 : container.clientHeight) : container.clientWidth;
-    if(!s)return;
+    const s=step(); if(!s)return;
     const total=axis==='y'?container.scrollHeight:container.scrollWidth;
     const viewport=axis==='y'?container.clientHeight:container.clientWidth;
     const pos=axis==='y'?container.scrollTop:container.scrollLeft;
@@ -587,68 +591,6 @@ function setupCircularScroll(container,axis='y'){
   return recenter;
 }
 
-let beCardIndex=Math.floor(11/2);
-let beCardsX=0;
-let beCardsDragging=false,beCardsStartX=0;
-function cardStep(){
-  const card=beCards.querySelector('.be-card');
-  return card ? card.getBoundingClientRect().width+14 : 0;
-}
-function renderCardTrack(animate=true){
-  const step=cardStep(); if(!step)return;
-  const target=-(beCardIndex*step) + (beCards.clientWidth-step)/2;
-  beCards.style.transition=animate?'transform .28s ease-out':'none';
-  beCards.style.transform=`translate3d(${target}px,0,0)`;
-  beCardsX=target;
-}
-function beCardNext(){
-  beCardIndex=(beCardIndex+1)%beCards.children.length;
-  renderCardTrack(true);
-}
-function beCardsRecenter(){
-  beCardIndex=Math.floor(beCards.children.length/2);
-  renderCardTrack(false);
-}
-function setupCardSwipe(){
-  beCards.addEventListener('pointerdown',e=>{
-    if(e.target.closest('.be-card.fullscreen') || e.target.closest('.be-card-action')) return;
-    beCardsDragging=true; beCardsStartX=e.clientX; beCards.style.transition='none'; beCards.setPointerCapture?.(e.pointerId);
-  });
-  beCards.addEventListener('pointerup',e=>{
-    if(!beCardsDragging)return;
-    beCardsDragging=false;
-    const dx=e.clientX-beCardsStartX;
-    if(Math.abs(dx)>35) beCardNext(); else renderCardTrack(true);
-  });
-  beCards.addEventListener('pointercancel',()=>{beCardsDragging=false;renderCardTrack(true);});
-}
-
-let beReelIndex=Math.floor(11/2);
-function reelStep(){
-  const card=beReels.querySelector('.be-reel-card');
-  return card ? card.getBoundingClientRect().height+14 : 0;
-}
-function renderReelTrack(animate=true){
-  const step=reelStep(); if(!step)return;
-  const target=-(beReelIndex*step)+(beReels.clientHeight-step)/2;
-  beReels.style.transition=animate?'transform .28s ease-out':'none';
-  beReels.style.transform=`translate3d(0,${target}px,0)`;
-}
-function beReelsRecenter(){
-  beReelIndex=Math.floor(beReels.children.length/2);
-  renderReelTrack(false);
-}
-function beReelNext(direction=1){
-  const n=beReels.children.length;
-  beReelIndex=(beReelIndex+direction+n)%n;
-  renderReelTrack(true);
-}
-function setupReelSwipe(){
-  let downY=0,drag=false;
-  beReels.addEventListener('pointerdown',e=>{drag=true;downY=e.clientY;beReels.style.transition='none';beReels.setPointerCapture?.(e.pointerId);});
-  beReels.addEventListener('pointerup',e=>{if(!drag)return;drag=false;const dy=e.clientY-downY;if(Math.abs(dy)>30)beReelNext(dy<0?1:-1);else renderReelTrack(true);});
-  beReels.addEventListener('pointercancel',()=>{drag=false;renderReelTrack(true);});
-}
 
 function setBeMode(mode){
   document.querySelectorAll('.be-card.fullscreen').forEach(c=>c.classList.remove('fullscreen'));
@@ -660,8 +602,8 @@ function setBeMode(mode){
   (mode==='feed'?beFeedTab:mode==='reels'?beReelsTab:beCardsTab).classList.add('active');
   requestAnimationFrame(()=>{
     if(mode==='feed')beFeedRecenter();
-    if(mode==='reels')requestAnimationFrame(()=>beReelsRecenter());
-    if(mode==='cards')beCardsRecenter();
+    if(mode==='reels')positionReels(false);
+    if(mode==='cards')positionCards(false);
   });
 }
 
@@ -676,7 +618,6 @@ function openBe(){
   welcome.classList.remove('show');
   document.body.classList.remove('night-mode');
   be.classList.add('show');
-  beFeedNote.classList.remove('hidden');
   setBeMode('feed');
 }
 
@@ -693,14 +634,80 @@ makeBlankPages(beFeed);
 makeBlankPages(beReels);
 makeBlankPages(beCards,11,true);
 const beFeedRecenter=setupCircularScroll(beFeed,'y');
+beFeed.addEventListener('scroll',()=>{if(beFeed.scrollTop>8)document.querySelector('.be-feed-note')?.classList.add('hidden')},{passive:true});
 
-setupCardSwipe();
-setupReelSwipe();
+let beCardIndex=Math.floor(beCards.children.length/2);
+let beCardStartX=0,beCardDragging=false;
+let beReelIndex=Math.floor(beReels.children.length/2);
+let beReelStartY=0,beReelDragging=false;
+
+function positionCards(animate=false){
+  const cards=[...beCards.children];
+  cards.forEach((card,i)=>{
+    let d=i-beCardIndex;
+    const n=cards.length;
+    if(d>Math.floor(n/2))d-=n;
+    if(d<-Math.floor(n/2))d+=n;
+    const x=d*calcCardStep();
+    card.style.transition=animate?'transform .28s ease-out,opacity .28s ease-out':'none';
+    card.style.transform=`translate(calc(-50% + ${x}px),-50%)`;
+    card.style.opacity=Math.abs(d)>2?'0':'1';
+    card.style.pointerEvents=d===0?'auto':'none';
+  });
+}
+function calcCardStep(){
+  const card=beCards.querySelector('.be-card');
+  return card ? card.getBoundingClientRect().width+14 : Math.min(window.innerWidth*0.84,390)+14;
+}
+function nextCard(){beCardIndex=(beCardIndex+1)%beCards.children.length;positionCards(true);}
+function prevCard(){beCardIndex=(beCardIndex-1+beCards.children.length)%beCards.children.length;positionCards(true);}
+function positionReels(animate=false){
+  const cards=[...beReels.children],n=cards.length;
+  cards.forEach((card,i)=>{
+    let d=i-beReelIndex;
+    if(d>Math.floor(n/2))d-=n;
+    if(d<-Math.floor(n/2))d+=n;
+    card.style.transition=animate?'transform .28s ease-out':'none';
+    card.style.transform=`translateY(${d*100}%)`;
+    card.style.opacity=Math.abs(d)>1?'0':'1';
+    card.style.pointerEvents=d===0?'auto':'none';
+  });
+}
+function nextReel(){beReelIndex=(beReelIndex+1)%beReels.children.length;positionReels(true);}
+function prevReel(){beReelIndex=(beReelIndex-1+beReels.children.length)%beReels.children.length;positionReels(true);}
+
+function setupCardPointer(){
+  beCards.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.be-card-action') || e.target.closest('.be-card.fullscreen')) return;
+    beCardDragging=true;beCardStartX=e.clientX;beCards.setPointerCapture?.(e.pointerId);
+  });
+  beCards.addEventListener('pointerup',e=>{
+    if(!beCardDragging)return;beCardDragging=false;
+    const dx=e.clientX-beCardStartX;
+    if(Math.abs(dx)>35) nextCard(); else positionCards(true);
+  });
+  beCards.addEventListener('pointercancel',()=>{beCardDragging=false;positionCards(true);});
+}
+function setupReelPointer(){
+  beReels.addEventListener('pointerdown',e=>{beReelDragging=true;beReelStartY=e.clientY;beReels.setPointerCapture?.(e.pointerId);});
+  beReels.addEventListener('pointerup',e=>{
+    if(!beReelDragging)return;beReelDragging=false;
+    const dy=e.clientY-beReelStartY;
+    if(Math.abs(dy)>35)(dy<0?nextReel:prevReel)(); else positionReels(true);
+  });
+  beReels.addEventListener('pointercancel',()=>{beReelDragging=false;positionReels(true);});
+}
+setupCardPointer();
+setupReelPointer();
+positionCards(false);
+positionReels(false);
 
 window.addEventListener('resize',()=>{
-  if(beMode==='feed')requestAnimationFrame(()=>beFeedRecenter());
-  if(beMode==='reels')requestAnimationFrame(()=>beReelsRecenter());
-  if(beMode==='cards')requestAnimationFrame(()=>beCardsRecenter());
+  requestAnimationFrame(()=>{
+    if(beMode==='feed')beFeedRecenter();
+    if(beMode==='reels')positionReels(false);
+    if(beMode==='cards')positionCards(false);
+  });
 });
 
 $('beOpen').addEventListener('click',openBe);
