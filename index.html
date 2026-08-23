@@ -76,12 +76,14 @@ body.night-mode .footer{color:#737d75}
 .be-page::after{content:"";position:absolute;width:1px;height:1px;opacity:0}
 .be-scroll{height:100%;width:100%;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .be-scroll::-webkit-scrollbar{display:none}
-.be-cards{height:100%;width:100%;display:flex;align-items:center;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior:contain;padding:0 9vw;scrollbar-width:none}
+.be-cards{height:100%;width:100%;display:flex;align-items:center;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior:contain;padding:0 9vw;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .be-cards::-webkit-scrollbar{display:none}
-.be-card{height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);scroll-snap-align:center;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035)}
-.be-observe{position:absolute;left:0;right:0;bottom:calc(86px + env(safe-area-inset-bottom));z-index:8;text-align:center}
-.be-observe-button{border:0;background:transparent;color:var(--muted);font:12px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.01em;padding:10px 14px}
-.be-observe-hint{font-size:11px;color:#9A9F98;margin-top:1px;opacity:.9}
+.be-card{position:relative;height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);scroll-snap-align:center;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.be-card::-webkit-scrollbar{display:none}
+.be-card-space{height:150%;width:100%}
+.be-card-actions{position:sticky;left:0;bottom:18px;display:flex;justify-content:center;gap:24px;padding:0 0 2px;pointer-events:none}
+.be-card-action{width:42px;height:42px;border-radius:50%;border:1px solid rgba(41,70,50,.12);background:rgba(245,240,230,.88);color:#899188;font:20px -apple-system,BlinkMacSystemFont,sans-serif;display:flex;align-items:center;justify-content:center;pointer-events:auto;box-shadow:0 4px 16px rgba(36,49,40,.035)}
+.be-card-action.yes{color:var(--green)}
 .be-nav{position:absolute;left:0;right:0;bottom:0;z-index:9;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;justify-content:center;align-items:flex-start;padding-top:8px;gap:8px;background:linear-gradient(to top,rgba(245,240,230,.94),rgba(245,240,230,.72),rgba(245,240,230,0))}
 .be-nav button{width:62px;height:44px;border:0;background:transparent;color:#899188;display:flex;align-items:center;justify-content:center;border-radius:12px}
 .be-nav button.active{color:var(--green)}
@@ -184,20 +186,18 @@ body.night-mode .be{background:#0f1712;color:#eee9de}
       <div class="be-cards" id="beCards" aria-label="Be cards"></div>
     </div>
 
-    <div class="be-observe">
-      <button class="be-observe-button" id="beObserve">What’s showing up inside?</button>
-      <div class="be-observe-hint">thought · feeling · sensation · or nothing</div>
-    </div>
-
     <nav class="be-nav" aria-label="Be spaces">
-      <button id="beFeedTab" class="active" aria-label="Feed" title="Feed">
+      <button type="button" id="beFeedTab" class="active" aria-label="Feed" title="Feed">
         <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"></rect><circle cx="8" cy="8" r=".7" fill="currentColor" stroke="none"></circle><circle cx="16" cy="8" r=".7" fill="currentColor" stroke="none"></circle><circle cx="8" cy="16" r=".7" fill="currentColor" stroke="none"></circle><circle cx="16" cy="16" r=".7" fill="currentColor" stroke="none"></circle></svg>
       </button>
-      <button id="beReelsTab" aria-label="Reels" title="Reels">
+      <button type="button" id="beReelsTab" aria-label="Reels" title="Reels">
         <svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8 3.5l3 4M13 3.5l3 4"></path><path d="M10 11l5 3-5 3z" fill="currentColor" stroke="none"></path></svg>
       </button>
-      <button id="beCardsTab" aria-label="Cards" title="Cards">
+      <button type="button" id="beCardsTab" aria-label="Cards" title="Cards">
         <svg viewBox="0 0 24 24"><rect x="5" y="5" width="13" height="15" rx="2"></rect><path d="M8 3.5h9a2 2 0 0 1 2 2v12"></path></svg>
+      </button>
+      <button type="button" id="beObserveTab" aria-label="Inner Observatory" title="Observe">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"></circle></svg>
       </button>
     </nav>
 
@@ -496,55 +496,87 @@ $('nightOpen').addEventListener('click',()=>{
 const be=$('be');
 const beFeedStage=$('beFeedStage'),beReelsStage=$('beReelsStage'),beCardsStage=$('beCardsStage');
 const beFeed=$('beFeed'),beReels=$('beReels'),beCards=$('beCards');
-const beFeedTab=$('beFeedTab'),beReelsTab=$('beReelsTab'),beCardsTab=$('beCardsTab');
-const beObserve=$('beObserve'),beObservePanel=$('beObservePanel'),beObserveInput=$('beObserveInput');
+const beFeedTab=$('beFeedTab'),beReelsTab=$('beReelsTab'),beCardsTab=$('beCardsTab'),beObserveTab=$('beObserveTab');
+const beObservePanel=$('beObservePanel'),beObserveInput=$('beObserveInput');
 let beMode='feed';
 
-function makeBlankPages(container,count=9,card=false){
+function makeBlankPages(container,count=11,card=false){
   container.innerHTML='';
   for(let i=0;i<count;i++){
     const el=document.createElement('div');
     el.className=card?'be-card':'be-page';
     el.setAttribute('aria-hidden','true');
+    if(card){
+      const space=document.createElement('div');
+      space.className='be-card-space';
+      const actions=document.createElement('div');
+      actions.className='be-card-actions';
+      const no=document.createElement('button');
+      no.type='button';
+      no.className='be-card-action';
+      no.setAttribute('aria-label','No');
+      no.textContent='×';
+      const yes=document.createElement('button');
+      yes.type='button';
+      yes.className='be-card-action yes';
+      yes.setAttribute('aria-label','Yes');
+      yes.textContent='✓';
+      actions.append(no,yes);
+      el.append(space,actions);
+      no.addEventListener('click',e=>{e.stopPropagation();beCardNext(-1);});
+      yes.addEventListener('click',e=>{e.stopPropagation();beCardNext(1);});
+    }
     container.appendChild(el);
   }
 }
 
+
 function setupCircularScroll(container,axis='y'){
-  const items=[...container.children];
-  if(!items.length)return;
   let resetting=false;
-  const middle=Math.floor(items.length/2);
+  const middle=Math.floor(container.children.length/2);
   const step=()=>{
-    if(axis==='y') return container.clientHeight;
+    if(axis==='y') return container.clientHeight || window.innerHeight;
     const card=container.querySelector('.be-card');
     return card ? card.getBoundingClientRect().width+14 : container.clientWidth;
   };
-  const placeMiddle=()=>{const s=step();if(axis==='y')container.scrollTop=middle*s;else container.scrollLeft=middle*s;};
-  requestAnimationFrame(placeMiddle);
-  container.addEventListener('scroll',()=>{
+  const recenter=()=>{
+    const s=step();
+    if(!s)return;
+    if(axis==='y')container.scrollTop=middle*s;
+    else container.scrollLeft=Math.max(0,middle*s-container.clientWidth/2+s/2);
+  };
+  const onScroll=()=>{
     if(resetting)return;
     const s=step();
+    if(!s)return;
     const total=axis==='y'?container.scrollHeight:container.scrollWidth;
     const viewport=axis==='y'?container.clientHeight:container.clientWidth;
     const pos=axis==='y'?container.scrollTop:container.scrollLeft;
-    if(pos<s*1.2 || pos>total-viewport-s*1.2){
+    if(pos<s*1.5 || pos>total-viewport-s*1.5){
       resetting=true;
       const shift=(middle-1)*s;
-      const target=pos<s*1.2?pos+shift:pos-shift;
+      const target=pos<s*1.5?pos+shift:pos-shift;
       if(axis==='y')container.scrollTop=target;else container.scrollLeft=target;
       requestAnimationFrame(()=>{resetting=false;});
     }
-  },{passive:true});
+  };
+  container.addEventListener('scroll',onScroll,{passive:true});
+  return recenter;
 }
+
 
 function setBeMode(mode){
   beMode=mode;
   beFeedStage.style.display=mode==='feed'?'block':'none';
   beReelsStage.style.display=mode==='reels'?'block':'none';
   beCardsStage.style.display=mode==='cards'?'block':'none';
-  [beFeedTab,beReelsTab,beCardsTab].forEach(b=>b.classList.remove('active'));
+  [beFeedTab,beReelsTab,beCardsTab,beObserveTab].forEach(b=>b.classList.remove('active'));
   (mode==='feed'?beFeedTab:mode==='reels'?beReelsTab:beCardsTab).classList.add('active');
+  requestAnimationFrame(()=>{
+    if(mode==='feed')beFeedRecenter();
+    if(mode==='reels')beReelsRecenter();
+    if(mode==='cards')beCardsRecenter();
+  });
 }
 
 function openBe(){
@@ -570,16 +602,24 @@ function closeBe(){
 
 makeBlankPages(beFeed);
 makeBlankPages(beReels);
-makeBlankPages(beCards,9,true);
-setupCircularScroll(beFeed,'y');
-setupCircularScroll(beReels,'y');
-setupCircularScroll(beCards,'x');
+makeBlankPages(beCards,11,true);
+const beFeedRecenter=setupCircularScroll(beFeed,'y');
+const beReelsRecenter=setupCircularScroll(beReels,'y');
+const beCardsRecenter=setupCircularScroll(beCards,'x');
+
+function beCardNext(direction){
+  const card=beCards.querySelector('.be-card');
+  if(!card)return;
+  const step=card.getBoundingClientRect().width+14;
+  beCards.scrollBy({left:direction*step,behavior:'smooth'});
+}
 
 $('beOpen').addEventListener('click',openBe);
 $('beBack').addEventListener('click',closeBe);
 beFeedTab.addEventListener('click',()=>setBeMode('feed'));
 beReelsTab.addEventListener('click',()=>setBeMode('reels'));
 beCardsTab.addEventListener('click',()=>setBeMode('cards'));
+beObserveTab.addEventListener('click',openObserve);
 
 function openObserve(){
   beObservePanel.classList.add('show');
@@ -589,7 +629,6 @@ function closeObserve(){
   beObservePanel.classList.remove('show');
   beObserveInput.value='';
 }
-beObserve.addEventListener('click',openObserve);
 $('beObserveDone').addEventListener('click',closeObserve);
 $('beObserveClose').addEventListener('click',closeObserve);
 beObservePanel.addEventListener('click',e=>{if(e.target===beObservePanel)closeObserve();});
@@ -675,7 +714,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260821-mmmm-v10',
+        '/sw.js?v=20260823-be-v12',
         { updateViaCache: 'none' }
       );
 
