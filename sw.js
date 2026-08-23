@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'tdb-final-20260823-be-v18';
+const CACHE_VERSION = 'tdb-final-20260823-be-v19';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const STATIC_ASSETS = [
   '/index.html',

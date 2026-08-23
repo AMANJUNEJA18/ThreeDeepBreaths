@@ -72,16 +72,17 @@ body.night-mode .footer{color:#737d75}
 .be-close{position:absolute;right:20px;top:0;border:0;background:transparent;color:var(--muted);font:13px -apple-system,BlinkMacSystemFont,sans-serif;padding:8px}
 .be-stage{position:absolute;inset:0;overflow:hidden;touch-action:pan-y}
 .be-reels-stage{touch-action:pan-y;overscroll-behavior:contain}
-.be-reel-cards{height:100%;width:100%;display:flex;flex-direction:column;align-items:center;gap:0;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.be-reel-cards{height:100%;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px;overflow:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding:15vh 9vw;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .be-reel-cards::-webkit-scrollbar{display:none}
-.be-reel-card{position:relative;width:100%;height:100dvh;flex:0 0 100dvh;scroll-snap-align:start;background:transparent;display:flex;align-items:center;justify-content:center;touch-action:pan-y}
-.be-feed-note{font:14px -apple-system,BlinkMacSystemFont,sans-serif;color:#7F887F;letter-spacing:.025em;pointer-events:none}
+.be-reel-card{position:relative;height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);scroll-snap-align:center;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);display:flex;align-items:center;justify-content:center;touch-action:none}
+@media(max-width:700px){.be-reel-card{height:70vh;width:82vw;flex-basis:70vh}}
+.be-feed-note{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:14px -apple-system,BlinkMacSystemFont,sans-serif;color:#7F887F;letter-spacing:.025em;pointer-events:none;z-index:2;transition:opacity .35s ease}.be-feed-note.hidden{opacity:0}
 .be-cards-stage{touch-action:pan-x}
 .be-page{height:100%;width:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex:0 0 100%;position:relative}
 .be-page::after{content:"";position:absolute;width:1px;height:1px;opacity:0}
 .be-scroll{height:100%;width:100%;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .be-scroll::-webkit-scrollbar{display:none}
-.be-cards{height:100%;width:100%;display:flex;align-items:center;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior:contain;padding:0 9vw;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.be-cards{height:100%;width:100%;display:flex;align-items:center;gap:14px;overflow:hidden;padding:0 9vw;scrollbar-width:none;touch-action:pan-y;will-change:transform}
 .be-cards::-webkit-scrollbar{display:none}
 .be-card{position:relative;height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);scroll-snap-align:center;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);overflow:hidden;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;cursor:pointer;transition:height .3s ease,width .3s ease,border-radius .3s ease,box-shadow .3s ease}
 .be-card::-webkit-scrollbar{display:none}
@@ -183,6 +184,7 @@ body.night-mode .be{background:#0f1712;color:#eee9de}
     </div>
 
     <div class="be-stage" id="beFeedStage">
+      <div class="be-feed-note" id="beFeedNote">A little space to be.</div>
       <div class="be-scroll" id="beFeed" aria-label="Be feed"></div>
     </div>
 
@@ -512,7 +514,7 @@ $('nightOpen').addEventListener('click',()=>{
 });
 const be=$('be');
 const beFeedStage=$('beFeedStage'),beReelsStage=$('beReelsStage'),beCardsStage=$('beCardsStage');
-const beFeed=$('beFeed'),beReels=$('beReels'),beCards=$('beCards');
+const beFeed=$('beFeed'),beReels=$('beReels'),beCards=$('beCards'),beFeedNote=$('beFeedNote');
 const beFeedTab=$('beFeedTab'),beReelsTab=$('beReelsTab'),beCardsTab=$('beCardsTab'),beObserveTab=$('beObserveTab');
 const beObservePanel=$('beObservePanel'),beObserveInput=$('beObserveInput'),beObserveAck=$('beObserveAck'),beObserveQuestion=$('beObserveQuestion');
 let beMode='feed';
@@ -527,12 +529,6 @@ function makeBlankPages(container,count=11,card=false){
     }else{
       el.className=card?'be-card':'be-page';
       el.setAttribute('aria-hidden','true');
-      if(!card && container.id==='beFeed' && i===Math.floor(count/2)){
-        const note=document.createElement('div');
-        note.className='be-feed-note';
-        note.textContent='Scroll me.';
-        el.appendChild(note);
-      }
       if(card){
         const space=document.createElement('div');
         space.className='be-card-space';
@@ -562,19 +558,20 @@ function makeBlankPages(container,count=11,card=false){
 function setupCircularScroll(container,axis='y'){
   let resetting=false;
   const middle=Math.floor(container.children.length/2);
-  const step=()=>{
-    if(axis==='y') return container.clientHeight || window.innerHeight;
-    const card=container.querySelector('.be-card');
-    return card ? card.getBoundingClientRect().width+14 : container.clientWidth;
-  };
+  const step=()=> axis==='y' ? container.clientHeight : container.clientWidth;
   const recenter=()=>{
     const s=step(); if(!s)return;
-    if(axis==='y')container.scrollTop=middle*s;
-    else container.scrollLeft=Math.max(0,middle*s-container.clientWidth/2+s/2);
+    if(axis==='y'){
+      const child=container.children[0];
+      const h=child ? child.getBoundingClientRect().height + (axis==='y' && container===beReels ? 14 : 0) : container.clientHeight;
+      container.scrollTop=middle*h;
+    }
   };
   const onScroll=()=>{
     if(resetting)return;
-    const s=step(); if(!s)return;
+    if(container===beFeed && beFeedNote && Math.abs(container.scrollTop)>8) beFeedNote.classList.add('hidden');
+    const s=axis==='y' ? (container===beReels ? (container.children[0]?.getBoundingClientRect().height||container.clientHeight)+14 : container.clientHeight) : container.clientWidth;
+    if(!s)return;
     const total=axis==='y'?container.scrollHeight:container.scrollWidth;
     const viewport=axis==='y'?container.clientHeight:container.clientWidth;
     const pos=axis==='y'?container.scrollTop:container.scrollLeft;
@@ -590,6 +587,68 @@ function setupCircularScroll(container,axis='y'){
   return recenter;
 }
 
+let beCardIndex=Math.floor(11/2);
+let beCardsX=0;
+let beCardsDragging=false,beCardsStartX=0;
+function cardStep(){
+  const card=beCards.querySelector('.be-card');
+  return card ? card.getBoundingClientRect().width+14 : 0;
+}
+function renderCardTrack(animate=true){
+  const step=cardStep(); if(!step)return;
+  const target=-(beCardIndex*step) + (beCards.clientWidth-step)/2;
+  beCards.style.transition=animate?'transform .28s ease-out':'none';
+  beCards.style.transform=`translate3d(${target}px,0,0)`;
+  beCardsX=target;
+}
+function beCardNext(){
+  beCardIndex=(beCardIndex+1)%beCards.children.length;
+  renderCardTrack(true);
+}
+function beCardsRecenter(){
+  beCardIndex=Math.floor(beCards.children.length/2);
+  renderCardTrack(false);
+}
+function setupCardSwipe(){
+  beCards.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.be-card.fullscreen') || e.target.closest('.be-card-action')) return;
+    beCardsDragging=true; beCardsStartX=e.clientX; beCards.style.transition='none'; beCards.setPointerCapture?.(e.pointerId);
+  });
+  beCards.addEventListener('pointerup',e=>{
+    if(!beCardsDragging)return;
+    beCardsDragging=false;
+    const dx=e.clientX-beCardsStartX;
+    if(Math.abs(dx)>35) beCardNext(); else renderCardTrack(true);
+  });
+  beCards.addEventListener('pointercancel',()=>{beCardsDragging=false;renderCardTrack(true);});
+}
+
+let beReelIndex=Math.floor(11/2);
+function reelStep(){
+  const card=beReels.querySelector('.be-reel-card');
+  return card ? card.getBoundingClientRect().height+14 : 0;
+}
+function renderReelTrack(animate=true){
+  const step=reelStep(); if(!step)return;
+  const target=-(beReelIndex*step)+(beReels.clientHeight-step)/2;
+  beReels.style.transition=animate?'transform .28s ease-out':'none';
+  beReels.style.transform=`translate3d(0,${target}px,0)`;
+}
+function beReelsRecenter(){
+  beReelIndex=Math.floor(beReels.children.length/2);
+  renderReelTrack(false);
+}
+function beReelNext(direction=1){
+  const n=beReels.children.length;
+  beReelIndex=(beReelIndex+direction+n)%n;
+  renderReelTrack(true);
+}
+function setupReelSwipe(){
+  let downY=0,drag=false;
+  beReels.addEventListener('pointerdown',e=>{drag=true;downY=e.clientY;beReels.style.transition='none';beReels.setPointerCapture?.(e.pointerId);});
+  beReels.addEventListener('pointerup',e=>{if(!drag)return;drag=false;const dy=e.clientY-downY;if(Math.abs(dy)>30)beReelNext(dy<0?1:-1);else renderReelTrack(true);});
+  beReels.addEventListener('pointercancel',()=>{drag=false;renderReelTrack(true);});
+}
 
 function setBeMode(mode){
   document.querySelectorAll('.be-card.fullscreen').forEach(c=>c.classList.remove('fullscreen'));
@@ -617,6 +676,7 @@ function openBe(){
   welcome.classList.remove('show');
   document.body.classList.remove('night-mode');
   be.classList.add('show');
+  beFeedNote.classList.remove('hidden');
   setBeMode('feed');
 }
 
@@ -633,15 +693,9 @@ makeBlankPages(beFeed);
 makeBlankPages(beReels);
 makeBlankPages(beCards,11,true);
 const beFeedRecenter=setupCircularScroll(beFeed,'y');
-const beReelsRecenter=setupCircularScroll(beReels,'y');
-const beCardsRecenter=setupCircularScroll(beCards,'x');
 
-function beCardNext(direction){
-  const card=beCards.querySelector('.be-card');
-  if(!card)return;
-  const step=card.getBoundingClientRect().width+14;
-  beCards.scrollBy({left:direction*step,behavior:'smooth'});
-}
+setupCardSwipe();
+setupReelSwipe();
 
 window.addEventListener('resize',()=>{
   if(beMode==='feed')requestAnimationFrame(()=>beFeedRecenter());

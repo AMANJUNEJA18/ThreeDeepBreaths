@@ -1,17 +1,16 @@
-Three Deep Breaths — Final Deployable v18
+Three Deep Breaths — Final Deployable v19
 
 Includes the established Breathe flow (3 → 7 → 12 → 21), Night 108 experience, lock/background synchronization, volume control, the softer mmmm-inspired breath audio, and the Be. companion.
 
-Be. is intentionally minimal: You can just be here. Nothing to fix. Nothing to become. It is a quiet space without advice, emotional labels, or conversational dependency.
+BE.
+- Be home initially shows only “A little space to be.”
+- The text disappears permanently for that visit once the user begins scrolling.
+- Feed: familiar vertical scrolling through endless blank spaces.
+- Reels: the same blank card visual language as Dating Cards, but without ×/✓. Swipe up/down to move endlessly through blank cards.
+- Dating Cards: before opening a card, left/right swipe moves to the next card; × and ✓ also move to the next card. Every new card enters from the right, regardless of whether the preceding action was left, right, ×, or ✓.
+- Opening a Dating Card makes it full-screen. Inside the opened card, vertical scrolling is available; left/right swipe is disabled; ×/✓ are the only ways to move to the next card.
+- Inner Observatory remains separate: “What’s showing up inside?” with “thought · feeling · sensation · or nothing”. A soft “Here.” acknowledgement appears after Done without interpreting the observation.
+- No advice, emotional labels, conversational dependency, tracking, or gamification.
 
-Be. spaces:
-- Feed: familiar vertical scrolling into blankness. The subtle invitation is “Scroll me.”
-- Reels: a reels-like full-screen sequence made from blank cards. Swipe up/down to move endlessly through the blank cards. It uses the same simple card/page idea as the dating-card space, with vertical rather than horizontal movement.
-- Cards: familiar dating-card browsing. Before opening a card, left/right swipe and ×/✓ both move between cards. Tap a card to open it full-screen; inside the opened card, vertical scrolling is allowed, left/right swipe is disabled, and ×/✓ are the only ways to move to another card.
-- Inner Observatory: “What’s showing up inside?” with the subtle definition “thought · feeling · sensation · or nothing”. After an observation is submitted, Be acknowledges softly with “Here.” rather than interpreting or advising.
-
-Main navigation uses a subtle green active state for the current Breathe, Night, or Be destination.
-
-The deeper design philosophy is to hold space, observe before interpreting, preserve before explaining, and gradually return the person to their own awareness/life without explicitly teaching or promising that outcome.
-
+DEPLOY
 Deploy all files to the app.threedeepbreaths.in site root.
