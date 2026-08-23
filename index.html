@@ -71,25 +71,25 @@ body.night-mode .footer{color:#737d75}
 .be-title{font-size:18px;letter-spacing:-.02em}
 .be-close{position:absolute;right:20px;top:0;border:0;background:transparent;color:var(--muted);font:13px -apple-system,BlinkMacSystemFont,sans-serif;padding:8px}
 .be-stage{position:absolute;inset:0;overflow:hidden;touch-action:auto}
-.be-feed-stage{touch-action:pan-y}
-.be-scroll{height:100%;width:100%;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-y;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+.be-feed-stage{touch-action:pan-y;pointer-events:auto}
+.be-scroll{height:100%;width:100%;position:relative;overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-y;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
 .be-scroll::-webkit-scrollbar{display:none}
 .be-page{height:100%;width:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex:0 0 100%;position:relative}
 .be-feed-note{font:14px -apple-system,BlinkMacSystemFont,sans-serif;color:#7F887F;letter-spacing:.025em;pointer-events:none;transition:opacity .45s ease}
 .be-feed-note.hidden{opacity:0;visibility:hidden}
-.be-track{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;will-change:transform}
+.be-track{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:flex-start;will-change:transform}
 .be-card{position:relative;height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);margin:0 7px;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);overflow:hidden;touch-action:none;cursor:pointer;transition:transform .28s ease,opacity .28s ease}
 .be-card-space{height:100%;width:100%;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:120px}
 .be-card-space::-webkit-scrollbar{display:none}
 .be-card.fullscreen{position:fixed;inset:0;width:100vw;height:100dvh;margin:0;z-index:30;border:0;border-radius:0;background:var(--paper);box-shadow:none;overflow:hidden;cursor:default;touch-action:auto}
-.be-card.fullscreen .be-card-space{height:100%;padding-bottom:150px}
+.be-card.fullscreen .be-card-space{height:100%;min-height:180%;padding-bottom:150px}
 .be-card-actions{position:fixed;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));display:none;justify-content:center;gap:24px;padding:0;pointer-events:none;z-index:60}
 .be-card.fullscreen .be-card-actions{display:flex}
 .be-card-action{width:46px;height:46px;border-radius:50%;border:1px solid rgba(41,70,50,.12);background:rgba(245,240,230,.94);color:#899188;font:21px -apple-system,BlinkMacSystemFont,sans-serif;display:flex;align-items:center;justify-content:center;pointer-events:auto;box-shadow:0 4px 16px rgba(36,49,40,.035)}
 .be-card-action.yes{color:var(--green)}
 .be-reels-stage{touch-action:none}
-.be-reel-track{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;will-change:transform;touch-action:none}
-.be-reel-card{position:relative;width:min(84vw,390px);height:min(72vh,640px);flex:0 0 min(84vw,390px);margin:7px 0;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);touch-action:none}
+.be-reel-track{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;will-change:transform;touch-action:none}
+.be-reel-card{position:relative;width:min(84vw,390px);height:min(72vh,640px);flex:0 0 min(84vw,390px);margin:7px 0;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);touch-action:none;overflow:hidden}
 @media(max-width:700px){.be-card,.be-reel-card{height:70vh;width:82vw;flex-basis:82vw}.be-observe-question{font-size:30px}}
 .be-nav{position:absolute;left:0;right:0;bottom:0;z-index:9;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;justify-content:center;align-items:flex-start;padding-top:8px;gap:8px;background:linear-gradient(to top,rgba(245,240,230,.94),rgba(245,240,230,.72),rgba(245,240,230,0))}
 .be-nav button{width:62px;height:44px;border:0;background:transparent;color:#899188;display:flex;align-items:center;justify-content:center;border-radius:12px}
@@ -534,7 +534,7 @@ function makeBlankPages(container,count=21,card=false){
       yes.type='button'; yes.className='be-card-action yes'; yes.setAttribute('aria-label','Yes'); yes.textContent='✓';
       actions.append(no,yes); el.append(space,actions);
       el.addEventListener('click',e=>{
-        if(e.target.closest('.be-card-action'))return;
+        if(e.target.closest('.be-card-action') || Date.now()<suppressCardClickUntil)return;
         if(!el.classList.contains('fullscreen')) openDatingCard(el);
       });
       no.addEventListener('click',e=>{e.stopPropagation(); advanceDatingCard();});
@@ -594,70 +594,52 @@ function advanceDatingCard(){
   },300);
 }
 
+let suppressCardClickUntil=0;
 function setupDatingPointer(){
-  let sx=0,sy=0,moved=false,downCard=null,pointerId=null;
-  beCards.addEventListener('pointerdown',e=>{
+  let sx=0,sy=0,moved=false,downCard=null,tracking=false;
+  beCards.addEventListener('touchstart',e=>{
     const card=e.target.closest('.be-card');
     if(!card || card.classList.contains('fullscreen') || e.target.closest('.be-card-action')) return;
-    sx=e.clientX; sy=e.clientY; moved=false; downCard=card; pointerId=e.pointerId;
-    try{beCards.setPointerCapture(pointerId);}catch(_){ }
+    const t=e.changedTouches[0]; sx=t.clientX; sy=t.clientY; moved=false; downCard=card; tracking=true;
+  },{passive:true});
+  beCards.addEventListener('touchmove',e=>{
+    if(!tracking || !downCard)return;
+    const t=e.changedTouches[0];
+    if(Math.abs(t.clientX-sx)>10 || Math.abs(t.clientY-sy)>10)moved=true;
+    if(moved)e.preventDefault();
   },{passive:false});
-  beCards.addEventListener('pointermove',e=>{
-    if(downCard===null) return;
-    if(Math.abs(e.clientX-sx)>10 || Math.abs(e.clientY-sy)>10) moved=true;
-    if(moved) e.preventDefault();
-  },{passive:false});
-  beCards.addEventListener('pointerup',e=>{
-    if(downCard===null) return;
-    const dx=e.clientX-sx, dy=e.clientY-sy;
-    const card=downCard; downCard=null;
-    try{beCards.releasePointerCapture(pointerId);}catch(_){ }
+  beCards.addEventListener('touchend',e=>{
+    if(!tracking || !downCard)return;
+    const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy,card=downCard;
+    tracking=false;downCard=null;
     if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)){
-      e.preventDefault(); advanceDatingCard();
-    } else if(!moved && card && !card.classList.contains('fullscreen')){
+      suppressCardClickUntil=Date.now()+500;
+      advanceDatingCard();
+    }else if(Math.abs(dx)<15 && Math.abs(dy)<15 && !moved){
       openDatingCard(card);
     }
-  },{passive:false});
-  beCards.addEventListener('pointercancel',()=>{downCard=null;},{passive:true});
+  },{passive:true});
+  beCards.addEventListener('click',e=>{
+    if(Date.now()<suppressCardClickUntil)return;
+    const card=e.target.closest('.be-card');
+    if(!card || card.classList.contains('fullscreen') || e.target.closest('.be-card-action'))return;
+    openDatingCard(card);
+  });
 }
 
 function setupReelPointer(){
-  let sy=0,active=false,pointerId=null;
-  beReels.addEventListener('pointerdown',e=>{
-    sy=e.clientY; active=true; pointerId=e.pointerId;
-    try{beReels.setPointerCapture(pointerId);}catch(_){ }
-  },{passive:false});
-  beReels.addEventListener('pointermove',e=>{if(active)e.preventDefault();},{passive:false});
-  beReels.addEventListener('pointerup',e=>{
+  let sy=0,active=false;
+  beReels.addEventListener('touchstart',e=>{
+    const t=e.changedTouches[0]; sy=t.clientY; active=true;
+  },{passive:true});
+  beReels.addEventListener('touchmove',e=>{if(active)e.preventDefault();},{passive:false});
+  beReels.addEventListener('touchend',e=>{
     if(!active)return; active=false;
-    const dy=e.clientY-sy;
-    try{beReels.releasePointerCapture(pointerId);}catch(_){ }
-    if(Math.abs(dy)>45){e.preventDefault();advanceReel(dy<0?1:-1);}
-  },{passive:false});
-  beReels.addEventListener('pointercancel',()=>{active=false;},{passive:true});
-}
-function advanceReel(direction){
-  if(beReelBusy)return;
-  beReelBusy=true;
-  beReelIndex=(beReelIndex+direction+beReels.children.length)%beReels.children.length;
-  setReelTrack(beReelIndex,true);
-  setTimeout(()=>{
-    if(beReelIndex<3||beReelIndex>17){beReelIndex=10;setReelTrack(beReelIndex,false);}
-    beReelBusy=false;
-  },300);
-}
-function setReelTrack(index,animate=false){
-  const child=beReels.children[0]; if(!child)return;
-  const step=child.getBoundingClientRect().height+14;
-  const y=window.innerHeight/2-step*(index+.5);
-  beReels.style.transition=animate?'transform .28s ease-out':'none';
-  beReels.style.transform=`translate3d(0,${y}px,0)`;
+    const t=e.changedTouches[0],dy=t.clientY-sy;
+    if(Math.abs(dy)>45)advanceReel(dy<0?1:-1);
+  },{passive:true});
 }
 
-function setFeedStart(){
-  const middle=Math.floor(beFeed.children.length/2);
-  requestAnimationFrame(()=>{beFeed.scrollTop=middle*beFeed.clientHeight;});
-}
 function setBeMode(mode){
   closeDatingCard();
   beMode=mode;
