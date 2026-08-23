@@ -70,7 +70,7 @@ body.night-mode .footer{color:#737d75}
 .be-top{position:absolute;top:calc(18px + env(safe-area-inset-top));left:0;right:0;z-index:8;display:flex;justify-content:center;align-items:center}
 .be-title{font-size:18px;letter-spacing:-.02em}
 .be-close{position:absolute;right:20px;top:0;border:0;background:transparent;color:var(--muted);font:13px -apple-system,BlinkMacSystemFont,sans-serif;padding:8px}
-.be-stage{position:absolute;inset:0;overflow:hidden;touch-action:none}
+.be-stage{position:absolute;inset:0;overflow:hidden;touch-action:auto}
 .be-feed-stage{touch-action:pan-y}
 .be-scroll{height:100%;width:100%;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-y;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
 .be-scroll::-webkit-scrollbar{display:none}
@@ -88,8 +88,8 @@ body.night-mode .footer{color:#737d75}
 .be-card-action{width:46px;height:46px;border-radius:50%;border:1px solid rgba(41,70,50,.12);background:rgba(245,240,230,.94);color:#899188;font:21px -apple-system,BlinkMacSystemFont,sans-serif;display:flex;align-items:center;justify-content:center;pointer-events:auto;box-shadow:0 4px 16px rgba(36,49,40,.035)}
 .be-card-action.yes{color:var(--green)}
 .be-reels-stage{touch-action:none}
-.be-reel-track{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;will-change:transform;touch-action:none}
-.be-reel-card{position:relative;width:min(84vw,390px);height:min(72vh,640px);flex:0 0 min(84vw,390px);margin:0 7px;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);touch-action:none}
+.be-reel-track{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;will-change:transform;touch-action:none}
+.be-reel-card{position:relative;width:min(84vw,390px);height:min(72vh,640px);flex:0 0 min(84vw,390px);margin:7px 0;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);touch-action:none}
 @media(max-width:700px){.be-card,.be-reel-card{height:70vh;width:82vw;flex-basis:82vw}.be-observe-question{font-size:30px}}
 .be-nav{position:absolute;left:0;right:0;bottom:0;z-index:9;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;justify-content:center;align-items:flex-start;padding-top:8px;gap:8px;background:linear-gradient(to top,rgba(245,240,230,.94),rgba(245,240,230,.72),rgba(245,240,230,0))}
 .be-nav button{width:62px;height:44px;border:0;background:transparent;color:#899188;display:flex;align-items:center;justify-content:center;border-radius:12px}
@@ -595,26 +595,46 @@ function advanceDatingCard(){
 }
 
 function setupDatingPointer(){
+  let sx=0,sy=0,moved=false,downCard=null,pointerId=null;
   beCards.addEventListener('pointerdown',e=>{
-    if(e.target.closest('.be-card.fullscreen') || e.target.closest('.be-card-action'))return;
-    beCardPointer=true; beCardStartX=e.clientX; beCardStartY=e.clientY;
-  });
+    const card=e.target.closest('.be-card');
+    if(!card || card.classList.contains('fullscreen') || e.target.closest('.be-card-action')) return;
+    sx=e.clientX; sy=e.clientY; moved=false; downCard=card; pointerId=e.pointerId;
+    try{beCards.setPointerCapture(pointerId);}catch(_){ }
+  },{passive:false});
+  beCards.addEventListener('pointermove',e=>{
+    if(downCard===null) return;
+    if(Math.abs(e.clientX-sx)>10 || Math.abs(e.clientY-sy)>10) moved=true;
+    if(moved) e.preventDefault();
+  },{passive:false});
   beCards.addEventListener('pointerup',e=>{
-    if(!beCardPointer)return; beCardPointer=false;
-    const dx=e.clientX-beCardStartX,dy=e.clientY-beCardStartY;
-    if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)){advanceDatingCard();}
-  });
-  beCards.addEventListener('pointercancel',()=>beCardPointer=false);
+    if(downCard===null) return;
+    const dx=e.clientX-sx, dy=e.clientY-sy;
+    const card=downCard; downCard=null;
+    try{beCards.releasePointerCapture(pointerId);}catch(_){ }
+    if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)){
+      e.preventDefault(); advanceDatingCard();
+    } else if(!moved && card && !card.classList.contains('fullscreen')){
+      openDatingCard(card);
+    }
+  },{passive:false});
+  beCards.addEventListener('pointercancel',()=>{downCard=null;},{passive:true});
 }
 
 function setupReelPointer(){
-  beReels.addEventListener('pointerdown',e=>{beReelPointer=true;beReelStartY=e.clientY;});
+  let sy=0,active=false,pointerId=null;
+  beReels.addEventListener('pointerdown',e=>{
+    sy=e.clientY; active=true; pointerId=e.pointerId;
+    try{beReels.setPointerCapture(pointerId);}catch(_){ }
+  },{passive:false});
+  beReels.addEventListener('pointermove',e=>{if(active)e.preventDefault();},{passive:false});
   beReels.addEventListener('pointerup',e=>{
-    if(!beReelPointer)return;beReelPointer=false;
-    const dy=e.clientY-beReelStartY;
-    if(Math.abs(dy)>45)advanceReel(dy<0?1:-1);
-  });
-  beReels.addEventListener('pointercancel',()=>beReelPointer=false);
+    if(!active)return; active=false;
+    const dy=e.clientY-sy;
+    try{beReels.releasePointerCapture(pointerId);}catch(_){ }
+    if(Math.abs(dy)>45){e.preventDefault();advanceReel(dy<0?1:-1);}
+  },{passive:false});
+  beReels.addEventListener('pointercancel',()=>{active=false;},{passive:true});
 }
 function advanceReel(direction){
   if(beReelBusy)return;
@@ -627,11 +647,11 @@ function advanceReel(direction){
   },300);
 }
 function setReelTrack(index,animate=false){
-  const step=trackStep(beReels);if(!step)return;
-  const x=window.innerWidth/2-step*(index+.5);
-  const y=0;
+  const child=beReels.children[0]; if(!child)return;
+  const step=child.getBoundingClientRect().height+14;
+  const y=window.innerHeight/2-step*(index+.5);
   beReels.style.transition=animate?'transform .28s ease-out':'none';
-  beReels.style.transform=`translate3d(${x}px,${y}px,0)`;
+  beReels.style.transform=`translate3d(0,${y}px,0)`;
 }
 
 function setFeedStart(){
@@ -698,8 +718,8 @@ function openObserve(){
 }
 function closeObserve(){
   beObservePanel.classList.remove('show');
-  (beMode==='feed'?beFeedTab:beMode==='reels'?beReelsTab:beCardsTab).classList.add('active');
   beObserveInput.value='';
+  setBeMode('feed');
 }
 function acknowledgeObserve(){
   const question=beObserveQuestion;
