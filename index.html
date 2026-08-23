@@ -38,7 +38,7 @@ button{cursor:pointer}
 .stay{display:inline-flex;align-items:center;justify-content:center;min-width:138px;min-height:48px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.12);color:var(--green);font:15px -apple-system,BlinkMacSystemFont,sans-serif}
 .subtle{font:12px -apple-system,BlinkMacSystemFont,sans-serif;color:#8A9088;margin-top:11px;letter-spacing:.025em}
 .alt{border-color:transparent;color:#657062;background:transparent}
-.done{display:block;margin:30px auto 0;background:none;border:0;color:#8A9088;font:12px -apple-system,BlinkMacSystemFont,sans-serif}
+.done{display:block;margin:30px auto 0;background:none;border:0;color:#8A9088;font:12px -apple-system,BlinkMacSystemFont,sans-serif;transition:color .25s ease}.done.active{color:var(--green)}
 .retreat{position:absolute;width:min(88vw,420px);opacity:0;pointer-events:none;transition:opacity .7s ease}
 .retreat.show{opacity:1;pointer-events:auto}
 .retreat .orb{margin-bottom:28px}
@@ -71,6 +71,8 @@ body.night-mode .footer{color:#737d75}
 .be-title{font-size:18px;letter-spacing:-.02em}
 .be-close{position:absolute;right:20px;top:0;border:0;background:transparent;color:var(--muted);font:13px -apple-system,BlinkMacSystemFont,sans-serif;padding:8px}
 .be-stage{position:absolute;inset:0;overflow:hidden;touch-action:pan-y}
+.be-reels-stage{touch-action:none}
+.be-feed-note{font:14px -apple-system,BlinkMacSystemFont,sans-serif;color:#7F887F;letter-spacing:.025em;pointer-events:none}
 .be-cards-stage{touch-action:pan-x}
 .be-page{height:100%;width:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex:0 0 100%;position:relative}
 .be-page::after{content:"";position:absolute;width:1px;height:1px;opacity:0}
@@ -78,10 +80,13 @@ body.night-mode .footer{color:#737d75}
 .be-scroll::-webkit-scrollbar{display:none}
 .be-cards{height:100%;width:100%;display:flex;align-items:center;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior:contain;padding:0 9vw;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .be-cards::-webkit-scrollbar{display:none}
-.be-card{position:relative;height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);scroll-snap-align:center;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.be-card{position:relative;height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);scroll-snap-align:center;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);overflow:hidden;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;cursor:pointer;transition:height .3s ease,width .3s ease,border-radius .3s ease,box-shadow .3s ease}
 .be-card::-webkit-scrollbar{display:none}
-.be-card-space{height:150%;width:100%}
-.be-card-actions{position:sticky;left:0;bottom:18px;display:flex;justify-content:center;gap:24px;padding:0 0 2px;pointer-events:none}
+.be-card-space{height:180%;width:100%;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.be-card-space::-webkit-scrollbar{display:none}
+.be-card.fullscreen{position:fixed;inset:0;width:100vw;height:100dvh;z-index:30;border:0;border-radius:0;background:var(--paper);box-shadow:none;overflow:hidden;cursor:default}
+.be-card.fullscreen .be-card-space{height:100%;padding-bottom:120px}
+.be-card-actions{position:absolute;left:0;right:0;bottom:calc(74px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:24px;padding:0 0 2px;pointer-events:none;z-index:4}
 .be-card-action{width:42px;height:42px;border-radius:50%;border:1px solid rgba(41,70,50,.12);background:rgba(245,240,230,.88);color:#899188;font:20px -apple-system,BlinkMacSystemFont,sans-serif;display:flex;align-items:center;justify-content:center;pointer-events:auto;box-shadow:0 4px 16px rgba(36,49,40,.035)}
 .be-card-action.yes{color:var(--green)}
 .be-nav{position:absolute;left:0;right:0;bottom:0;z-index:9;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;justify-content:center;align-items:flex-start;padding-top:8px;gap:8px;background:linear-gradient(to top,rgba(245,240,230,.94),rgba(245,240,230,.72),rgba(245,240,230,0))}
@@ -118,7 +123,7 @@ body.night-mode .be{background:#0f1712;color:#eee9de}
   <div class="phase" id="phase">Ready</div>
   <div class="timer" id="timer"></div>
   <div class="count" id="count"></div>
-  <button class="begin" id="begin">Three Deep Breaths</button>
+  <button class="begin active" id="begin">Three Deep Breaths</button>
   <button class="done" id="nightOpen" style="margin-top:22px">Night</button>
   <button class="done" id="beOpen" style="margin-top:18px">Be.</button>
 </section>
@@ -178,7 +183,7 @@ body.night-mode .be{background:#0f1712;color:#eee9de}
       <div class="be-scroll" id="beFeed" aria-label="Be feed"></div>
     </div>
 
-    <div class="be-stage" id="beReelsStage" style="display:none">
+    <div class="be-stage be-reels-stage" id="beReelsStage" style="display:none">
       <div class="be-scroll" id="beReels" aria-label="Be reels"></div>
     </div>
 
@@ -235,6 +240,12 @@ body.night-mode .be{background:#0f1712;color:#eee9de}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
+const mainNavButtons=()=>[$('begin'),$('nightOpen'),$('beOpen')];
+function setMainNavActive(which){
+  mainNavButtons().forEach(b=>b&&b.classList.remove('active'));
+  const target=which==='night'?$('nightOpen'):which==='be'?$('beOpen'):$ ('begin');
+  if(target)target.classList.add('active');
+}
 const home=$('home'),invite=$('invite'),retreat=$('retreat'),welcome=$('welcome');
 const night=$('night'),nightSession=$('nightSession'),nightOrb=$('nightOrb'),nightPhase=$('nightPhase'),nightTimer=$('nightTimer'),nightCount=$('nightCount'),nightFocus=$('nightFocus');
 let nightSelectedFocus='Anywhere';
@@ -470,6 +481,7 @@ document.querySelectorAll('.night-option').forEach(button=>{
 function openNightFromQuery(){
   const params=new URLSearchParams(window.location.search);
   if(params.get('night')!=='1') return;
+  setMainNavActive('night');
   home.style.opacity='0';
   home.style.pointerEvents='none';
   document.body.classList.add('night-mode');
@@ -483,6 +495,7 @@ function openNightFromQuery(){
 }
 
 $('nightOpen').addEventListener('click',()=>{
+  setMainNavActive('night');
   home.style.opacity='0';
   home.style.pointerEvents='none';
   document.body.classList.add('night-mode');
@@ -506,6 +519,12 @@ function makeBlankPages(container,count=11,card=false){
     const el=document.createElement('div');
     el.className=card?'be-card':'be-page';
     el.setAttribute('aria-hidden','true');
+    if(!card && container.id==='beFeed' && i===Math.floor(count/2)){
+      const note=document.createElement('div');
+      note.className='be-feed-note';
+      note.textContent='A little space to be.';
+      el.appendChild(note);
+    }
     if(card){
       const space=document.createElement('div');
       space.className='be-card-space';
@@ -523,8 +542,30 @@ function makeBlankPages(container,count=11,card=false){
       yes.textContent='✓';
       actions.append(no,yes);
       el.append(space,actions);
-      no.addEventListener('click',e=>{e.stopPropagation();beCardNext(-1);});
-      yes.addEventListener('click',e=>{e.stopPropagation();beCardNext(1);});
+      let cardTouchX=0,cardTouchY=0;
+      el.addEventListener('touchstart',e=>{
+        if(!el.classList.contains('fullscreen') || !e.touches[0])return;
+        cardTouchX=e.touches[0].clientX; cardTouchY=e.touches[0].clientY;
+      },{passive:true});
+      el.addEventListener('touchend',e=>{
+        if(!el.classList.contains('fullscreen') || !e.changedTouches[0])return;
+        const dx=e.changedTouches[0].clientX-cardTouchX;
+        const dy=e.changedTouches[0].clientY-cardTouchY;
+        if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)){
+          el.classList.remove('fullscreen');
+          beCardNext(dx<0?1:-1);
+        }
+      },{passive:true});
+      el.addEventListener('click',e=>{
+        if(e.target.closest('.be-card-action'))return;
+        if(!el.classList.contains('fullscreen')){
+          document.querySelectorAll('.be-card.fullscreen').forEach(c=>c.classList.remove('fullscreen'));
+          el.classList.add('fullscreen');
+          requestAnimationFrame(()=>space.scrollTop=0);
+        }
+      });
+      no.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');beCardNext(-1);});
+      yes.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');beCardNext(1);});
     }
     container.appendChild(el);
   }
@@ -566,6 +607,7 @@ function setupCircularScroll(container,axis='y'){
 
 
 function setBeMode(mode){
+  document.querySelectorAll('.be-card.fullscreen').forEach(c=>c.classList.remove('fullscreen'));
   beMode=mode;
   beFeedStage.style.display=mode==='feed'?'block':'none';
   beReelsStage.style.display=mode==='reels'?'block':'none';
@@ -580,6 +622,7 @@ function setBeMode(mode){
 }
 
 function openBe(){
+  setMainNavActive('be');
   home.style.opacity='0';
   home.style.pointerEvents='none';
   night.classList.remove('show');
@@ -593,6 +636,7 @@ function openBe(){
 }
 
 function closeBe(){
+  setMainNavActive('breathe');
   beObservePanel.classList.remove('show');
   beObserveInput.value='';
   be.classList.remove('show');
@@ -606,6 +650,30 @@ makeBlankPages(beCards,11,true);
 const beFeedRecenter=setupCircularScroll(beFeed,'y');
 const beReelsRecenter=setupCircularScroll(beReels,'y');
 const beCardsRecenter=setupCircularScroll(beCards,'x');
+
+// Reels: use deliberate full-screen paging gestures so vertical swipes remain
+// reliable on iOS Safari even after the tab has been hidden and shown.
+let reelsIndex=Math.floor(beReels.children.length/2), reelsTouchY=0, reelsDragging=false;
+function reelsPage(direction){
+  reelsIndex+=direction;
+  if(reelsIndex<2){reelsIndex+=beReels.children.length-4;}
+  if(reelsIndex>beReels.children.length-3){reelsIndex-=beReels.children.length-4;}
+  const h=beReels.clientHeight || window.innerHeight;
+  beReels.scrollTo({top:reelsIndex*h,behavior:'smooth'});
+}
+beReels.addEventListener('touchstart',e=>{
+  if(!e.touches[0])return;
+  reelsTouchY=e.touches[0].clientY; reelsDragging=true;
+},{passive:true});
+beReels.addEventListener('touchend',e=>{
+  if(!reelsDragging || !e.changedTouches[0])return;
+  const dy=e.changedTouches[0].clientY-reelsTouchY; reelsDragging=false;
+  if(Math.abs(dy)<35)return;
+  reelsPage(dy<0?1:-1);
+},{passive:true});
+window.addEventListener('resize',()=>{
+  if(beMode==='reels')requestAnimationFrame(()=>beReels.scrollTop=reelsIndex*(beReels.clientHeight||window.innerHeight));
+});
 
 function beCardNext(direction){
   const card=beCards.querySelector('.be-card');
@@ -634,16 +702,19 @@ $('beObserveClose').addEventListener('click',closeObserve);
 beObservePanel.addEventListener('click',e=>{if(e.target===beObservePanel)closeObserve();});
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape' && beObservePanel.classList.contains('show')) closeObserve();
+  if(e.key==='Escape') document.querySelectorAll('.be-card.fullscreen').forEach(c=>c.classList.remove('fullscreen'));
 });
 $('nightBegin').addEventListener('click',runNight);
 openNightFromQuery();
 $('nightBack').addEventListener('click',()=>{
+  setMainNavActive('breathe');
   night.classList.remove('show');
   document.body.classList.remove('night-mode');
   home.style.opacity='1';
   home.style.pointerEvents='auto';
 });
 $('nightLeave').addEventListener('click',()=>{
+  setMainNavActive('breathe');
   stopBreathAudio();
   activeSession=null;
   nightSession.classList.remove('show');
@@ -651,7 +722,7 @@ $('nightLeave').addEventListener('click',()=>{
   home.style.opacity='1';
   home.style.pointerEvents='auto';
 });
-$('begin').addEventListener('click',runThree);
+$('begin').addEventListener('click',()=>{ setMainNavActive('breathe'); runThree(); });
 $('inviteButton').addEventListener('click',()=>runRetreatStage(nextStage));
 $('inviteDone').addEventListener('click',()=>{
   invite.classList.remove('show');welcome.classList.add('show');
@@ -660,6 +731,7 @@ $('leave').addEventListener('click',()=>{
   retreat.classList.remove('show');welcome.classList.add('show');
 });
 $('welcomeHome').addEventListener('click',()=>{
+  setMainNavActive('breathe');
   stopBreathAudio();
   activeSession=null;
   welcome.classList.remove('show');
@@ -714,7 +786,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260823-be-v12',
+        '/sw.js?v=20260823-be-v13',
         { updateViaCache: 'none' }
       );
 
