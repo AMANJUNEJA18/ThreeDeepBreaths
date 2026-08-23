@@ -71,10 +71,10 @@ body.night-mode .footer{color:#737d75}
 .be-title{font-size:18px;letter-spacing:-.02em}
 .be-close{position:absolute;right:20px;top:0;border:0;background:transparent;color:var(--muted);font:13px -apple-system,BlinkMacSystemFont,sans-serif;padding:8px}
 .be-stage{position:absolute;inset:0;overflow:hidden;touch-action:pan-y}
-.be-reels-stage{touch-action:none}
-.be-reels-stage .be-scroll{overflow:hidden;position:relative;display:block;touch-action:none}
-.be-reels-stage .be-page{position:absolute;inset:0;width:100%;height:100%;transform:translate3d(0,0,0);transition:transform .28s ease;pointer-events:none}
-.be-reels-stage .be-page.reel-current{pointer-events:auto}
+.be-reels-stage{touch-action:pan-y;overscroll-behavior:contain}
+.be-reel-cards{height:100%;width:100%;display:flex;flex-direction:column;align-items:center;gap:0;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.be-reel-cards::-webkit-scrollbar{display:none}
+.be-reel-card{position:relative;width:100%;height:100dvh;flex:0 0 100dvh;scroll-snap-align:start;background:transparent;display:flex;align-items:center;justify-content:center;touch-action:pan-y}
 .be-feed-note{font:14px -apple-system,BlinkMacSystemFont,sans-serif;color:#7F887F;letter-spacing:.025em;pointer-events:none}
 .be-cards-stage{touch-action:pan-x}
 .be-page{height:100%;width:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex:0 0 100%;position:relative}
@@ -99,7 +99,7 @@ body.night-mode .footer{color:#737d75}
 .be-observe-panel{position:absolute;inset:0;z-index:15;background:rgba(245,240,230,.97);display:flex;align-items:center;justify-content:center;padding:28px;opacity:0;pointer-events:none;transition:opacity .35s ease}
 .be-observe-panel.show{opacity:1;pointer-events:auto}
 .be-observe-inner{width:min(88vw,500px);text-align:center}
-.be-observe-question{font-size:34px;line-height:1.15;letter-spacing:-.03em;color:var(--ink);margin-bottom:10px}
+.be-observe-ack{font-size:30px;line-height:1.15;letter-spacing:-.03em;color:var(--ink);opacity:0;display:none;transition:opacity .45s ease}.be-observe-ack.show{display:block;opacity:1}.be-observe-question{font-size:34px;line-height:1.15;letter-spacing:-.03em;color:var(--ink);margin-bottom:10px}
 .be-observe-definition{font:12px -apple-system,BlinkMacSystemFont,sans-serif;color:#8A9088;letter-spacing:.025em}
 .be-observe-input{width:100%;min-height:150px;margin-top:28px;padding:16px 4px;border:0;border-bottom:1px solid rgba(41,70,50,.18);background:transparent;outline:none;resize:none;color:var(--ink);font:18px/1.5 Georgia,serif;text-align:center}
 .be-observe-input::placeholder{color:transparent}
@@ -187,7 +187,7 @@ body.night-mode .be{background:#0f1712;color:#eee9de}
     </div>
 
     <div class="be-stage be-reels-stage" id="beReelsStage" style="display:none">
-      <div class="be-scroll" id="beReels" aria-label="Be reels"></div>
+      <div class="be-reel-cards" id="beReels" aria-label="Be reels"></div>
     </div>
 
     <div class="be-stage be-cards-stage" id="beCardsStage" style="display:none">
@@ -211,7 +211,8 @@ body.night-mode .be{background:#0f1712;color:#eee9de}
 
     <div class="be-observe-panel" id="beObservePanel">
       <div class="be-observe-inner">
-        <div class="be-observe-question">What’s showing up inside?</div>
+        <div class="be-observe-ack" id="beObserveAck" aria-live="polite">Here.</div>
+        <div class="be-observe-question" id="beObserveQuestion">What’s showing up inside?</div>
         <div class="be-observe-definition">thought · feeling · sensation · or nothing</div>
         <textarea id="beObserveInput" class="be-observe-input" aria-label="Observation" autocomplete="off" autocapitalize="sentences" spellcheck="true"></textarea>
         <div class="be-observe-actions">
@@ -513,53 +514,50 @@ const be=$('be');
 const beFeedStage=$('beFeedStage'),beReelsStage=$('beReelsStage'),beCardsStage=$('beCardsStage');
 const beFeed=$('beFeed'),beReels=$('beReels'),beCards=$('beCards');
 const beFeedTab=$('beFeedTab'),beReelsTab=$('beReelsTab'),beCardsTab=$('beCardsTab'),beObserveTab=$('beObserveTab');
-const beObservePanel=$('beObservePanel'),beObserveInput=$('beObserveInput');
+const beObservePanel=$('beObservePanel'),beObserveInput=$('beObserveInput'),beObserveAck=$('beObserveAck'),beObserveQuestion=$('beObserveQuestion');
 let beMode='feed';
 
 function makeBlankPages(container,count=11,card=false){
   container.innerHTML='';
   for(let i=0;i<count;i++){
     const el=document.createElement('div');
-    el.className=card?'be-card':'be-page';
-    el.setAttribute('aria-hidden','true');
-    if(!card && container.id==='beFeed' && i===Math.floor(count/2)){
-      const note=document.createElement('div');
-      note.className='be-feed-note';
-      note.textContent='A little space to be.';
-      el.appendChild(note);
-    }
-    if(card){
-      const space=document.createElement('div');
-      space.className='be-card-space';
-      const actions=document.createElement('div');
-      actions.className='be-card-actions';
-      const no=document.createElement('button');
-      no.type='button';
-      no.className='be-card-action';
-      no.setAttribute('aria-label','No');
-      no.textContent='×';
-      const yes=document.createElement('button');
-      yes.type='button';
-      yes.className='be-card-action yes';
-      yes.setAttribute('aria-label','Yes');
-      yes.textContent='✓';
-      actions.append(no,yes);
-      el.append(space,actions);
-      el.addEventListener('click',e=>{
-        if(e.target.closest('.be-card-action'))return;
-        if(!el.classList.contains('fullscreen')){
-          document.querySelectorAll('.be-card.fullscreen').forEach(c=>c.classList.remove('fullscreen'));
-          el.classList.add('fullscreen');
-          requestAnimationFrame(()=>space.scrollTop=0);
-        }
-      });
-      no.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');beCardNext(-1);});
-      yes.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');beCardNext(1);});
+    if(container.id==='beReels'){
+      el.className='be-reel-card';
+      el.setAttribute('aria-hidden','true');
+    }else{
+      el.className=card?'be-card':'be-page';
+      el.setAttribute('aria-hidden','true');
+      if(!card && container.id==='beFeed' && i===Math.floor(count/2)){
+        const note=document.createElement('div');
+        note.className='be-feed-note';
+        note.textContent='Scroll me.';
+        el.appendChild(note);
+      }
+      if(card){
+        const space=document.createElement('div');
+        space.className='be-card-space';
+        const actions=document.createElement('div');
+        actions.className='be-card-actions';
+        const no=document.createElement('button');
+        no.type='button'; no.className='be-card-action'; no.setAttribute('aria-label','No'); no.textContent='×';
+        const yes=document.createElement('button');
+        yes.type='button'; yes.className='be-card-action yes'; yes.setAttribute('aria-label','Yes'); yes.textContent='✓';
+        actions.append(no,yes); el.append(space,actions);
+        el.addEventListener('click',e=>{
+          if(e.target.closest('.be-card-action'))return;
+          if(!el.classList.contains('fullscreen')){
+            document.querySelectorAll('.be-card.fullscreen').forEach(c=>c.classList.remove('fullscreen'));
+            el.classList.add('fullscreen');
+            requestAnimationFrame(()=>space.scrollTop=0);
+          }
+        });
+        no.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');beCardNext(-1);});
+        yes.addEventListener('click',e=>{e.stopPropagation();el.classList.remove('fullscreen');beCardNext(1);});
+      }
     }
     container.appendChild(el);
   }
 }
-
 
 function setupCircularScroll(container,axis='y'){
   let resetting=false;
@@ -570,15 +568,13 @@ function setupCircularScroll(container,axis='y'){
     return card ? card.getBoundingClientRect().width+14 : container.clientWidth;
   };
   const recenter=()=>{
-    const s=step();
-    if(!s)return;
+    const s=step(); if(!s)return;
     if(axis==='y')container.scrollTop=middle*s;
     else container.scrollLeft=Math.max(0,middle*s-container.clientWidth/2+s/2);
   };
   const onScroll=()=>{
     if(resetting)return;
-    const s=step();
-    if(!s)return;
+    const s=step(); if(!s)return;
     const total=axis==='y'?container.scrollHeight:container.scrollWidth;
     const viewport=axis==='y'?container.clientHeight:container.clientWidth;
     const pos=axis==='y'?container.scrollTop:container.scrollLeft;
@@ -605,7 +601,7 @@ function setBeMode(mode){
   (mode==='feed'?beFeedTab:mode==='reels'?beReelsTab:beCardsTab).classList.add('active');
   requestAnimationFrame(()=>{
     if(mode==='feed')beFeedRecenter();
-    if(mode==='reels'){reelsIndex=Math.floor(beReels.children.length/2);renderReels(false);}
+    if(mode==='reels')requestAnimationFrame(()=>beReelsRecenter());
     if(mode==='cards')beCardsRecenter();
   });
 }
@@ -640,57 +636,18 @@ const beFeedRecenter=setupCircularScroll(beFeed,'y');
 const beReelsRecenter=setupCircularScroll(beReels,'y');
 const beCardsRecenter=setupCircularScroll(beCards,'x');
 
-// Reels: true full-screen paging. No native scrolling is used here,
-// so vertical swipes remain reliable on iOS Safari.
-let reelsIndex=Math.floor(beReels.children.length/2);
-let reelsTouchY=0,reelsDragging=false,reelsAnimating=false;
-function renderReels(animate=true){
-  const h=beReels.clientHeight||window.innerHeight;
-  const pages=[...beReels.children];
-  pages.forEach((page,i)=>{
-    page.style.transition=animate?'transform .28s ease':'none';
-    page.style.transform=`translate3d(0,${(i-reelsIndex)*h}px,0)`;
-    page.classList.toggle('reel-current',i===reelsIndex);
-  });
-}
-function normalizeReels(){
-  const n=beReels.children.length;
-  if(reelsIndex<2)reelsIndex=n-4+reelsIndex;
-  if(reelsIndex>n-3)reelsIndex=reelsIndex-(n-4);
-}
-function reelsPage(direction){
-  if(reelsAnimating)return;
-  reelsAnimating=true;
-  reelsIndex+=direction;
-  normalizeReels();
-  renderReels(true);
-  setTimeout(()=>{
-    reelsAnimating=false;
-    renderReels(false);
-  },300);
-}
-beReels.addEventListener('touchstart',e=>{
-  if(!e.touches[0])return;
-  reelsTouchY=e.touches[0].clientY;
-  reelsDragging=true;
-},{passive:true});
-beReels.addEventListener('touchend',e=>{
-  if(!reelsDragging || !e.changedTouches[0])return;
-  const dy=e.changedTouches[0].clientY-reelsTouchY;
-  reelsDragging=false;
-  if(Math.abs(dy)<35)return;
-  reelsPage(dy<0?1:-1);
-},{passive:true});
-window.addEventListener('resize',()=>{
-  if(beMode==='reels')requestAnimationFrame(()=>renderReels(false));
-});
-
 function beCardNext(direction){
   const card=beCards.querySelector('.be-card');
   if(!card)return;
   const step=card.getBoundingClientRect().width+14;
   beCards.scrollBy({left:direction*step,behavior:'smooth'});
 }
+
+window.addEventListener('resize',()=>{
+  if(beMode==='feed')requestAnimationFrame(()=>beFeedRecenter());
+  if(beMode==='reels')requestAnimationFrame(()=>beReelsRecenter());
+  if(beMode==='cards')requestAnimationFrame(()=>beCardsRecenter());
+});
 
 $('beOpen').addEventListener('click',openBe);
 $('beBack').addEventListener('click',closeBe);
@@ -700,14 +657,41 @@ beCardsTab.addEventListener('click',()=>setBeMode('cards'));
 beObserveTab.addEventListener('click',openObserve);
 
 function openObserve(){
+  [beFeedTab,beReelsTab,beCardsTab,beObserveTab].forEach(b=>b.classList.remove('active'));
+  beObserveTab.classList.add('active');
   beObservePanel.classList.add('show');
+  beObserveAck.classList.remove('show');
+  beObserveQuestion.style.display='block';
+  beObserveInput.style.display='block';
+  document.querySelector('.be-observe-definition').style.display='block';
+  document.querySelector('.be-observe-actions').style.display='flex';
   requestAnimationFrame(()=>beObserveInput.focus());
 }
 function closeObserve(){
   beObservePanel.classList.remove('show');
+  (beMode==='feed'?beFeedTab:beMode==='reels'?beReelsTab:beCardsTab).classList.add('active');
   beObserveInput.value='';
 }
-$('beObserveDone').addEventListener('click',closeObserve);
+function acknowledgeObserve(){
+  const question=beObserveQuestion;
+  const definition=document.querySelector('.be-observe-definition');
+  const input=beObserveInput;
+  const actions=document.querySelector('.be-observe-actions');
+  beObserveAck.classList.add('show');
+  question.style.display='none';
+  definition.style.display='none';
+  input.style.display='none';
+  actions.style.display='none';
+  setTimeout(()=>{
+    beObserveAck.classList.remove('show');
+    question.style.display='block';
+    definition.style.display='block';
+    input.style.display='block';
+    actions.style.display='flex';
+    input.value='';
+  },1200);
+}
+$('beObserveDone').addEventListener('click',acknowledgeObserve);
 $('beObserveClose').addEventListener('click',closeObserve);
 beObservePanel.addEventListener('click',e=>{if(e.target===beObservePanel)closeObserve();});
 document.addEventListener('keydown',e=>{
@@ -796,7 +780,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/sw.js?v=20260823-be-v15',
+        '/sw.js?v=20260823-be-v18',
         { updateViaCache: 'none' }
       );
 
