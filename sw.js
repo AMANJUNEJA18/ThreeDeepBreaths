@@ -1,6 +1,7 @@
-const CACHE_VERSION = 'tdb-final-20260821-mmmm-v10';
+const CACHE_VERSION = 'tdb-final-20260823-be-v11';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const STATIC_ASSETS = [
+  '/index.html',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
