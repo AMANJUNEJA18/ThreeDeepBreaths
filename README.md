@@ -12,3 +12,7 @@ Breathe and Night timing/synchronization and audio are preserved.
 
 ## Deployment
 Upload the contents of this folder to the site root. Do not nest the `v28pkg` directory itself under the web root.
+
+## v29 visual alignment
+
+Only the Be Dating Cards and Reels card geometry was adjusted in v29. Both use the same centered rectangular card geometry, with the card positioned below/within the Be header area while preserving their existing interaction behavior. No Breathe, Night, Observatory, or Be interaction logic was intentionally changed.
