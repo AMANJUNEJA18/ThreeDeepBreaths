@@ -21,7 +21,7 @@ body{background:var(--paper);color:var(--ink);font-family:Georgia,serif;-webkit-
 main{height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;padding:28px}
 .brand{position:absolute;top:calc(22px + env(safe-area-inset-top));font-size:17px}
 .footer{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:var(--muted)}
-.wrap,.screen{width:min(88vw,420px);position:relative;z-index:2}
+.wrap,.screen{width:min(88vw,420px);position:relative;z-index:5;pointer-events:auto}
 .prompt{font-size:50px;line-height:1.05;margin-bottom:40px;letter-spacing:-.035em}
 .orb{width:240px;height:240px;border:1px solid #9BA68D;border-radius:50%;margin:0 auto 38px;transition-property:transform,background,box-shadow;transition-timing-function:ease-in-out}
 .orb.inhale{transform:scale(1.22);background:#DDE3D355;box-shadow:0 0 60px #A8B19733}
@@ -70,26 +70,28 @@ body.night-mode .footer{color:#737d75}
 .be-top{position:absolute;top:calc(18px + env(safe-area-inset-top));left:0;right:0;z-index:8;display:flex;justify-content:center;align-items:center}
 .be-title{font-size:18px;letter-spacing:-.02em}
 .be-close{position:absolute;right:20px;top:0;border:0;background:transparent;color:var(--muted);font:13px -apple-system,BlinkMacSystemFont,sans-serif;padding:8px}
+
 .be-stage{position:absolute;inset:0;overflow:hidden;touch-action:auto;z-index:1}
 .be-feed-stage{touch-action:pan-y;pointer-events:auto}
 .be-scroll{height:100%;width:100%;position:relative;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-y;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
 .be-scroll::-webkit-scrollbar{display:none}
 .be-page{height:100%;width:100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex:0 0 100%;position:relative}
-.be-feed-note{font:14px -apple-system,BlinkMacSystemFont,sans-serif;color:#7F887F;letter-spacing:.025em;pointer-events:none;transition:opacity .45s ease}
-.be-feed-note.hidden{opacity:0;visibility:hidden}
-.be-track{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:flex-start;will-change:transform;touch-action:none}
-.be-card{position:relative;height:min(72vh,640px);width:min(84vw,390px);flex:0 0 min(84vw,390px);margin:0 7px;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);overflow:hidden;touch-action:none;cursor:pointer;transition:transform .28s ease,opacity .28s ease}
-.be-card-space{height:100%;width:100%;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:120px}
-.be-card-space::-webkit-scrollbar{display:none}
-.be-card.fullscreen{position:fixed;inset:0;width:100vw;height:100dvh;margin:0;z-index:30;border:0;border-radius:0;background:var(--paper);box-shadow:none;overflow:hidden;cursor:default;touch-action:auto}
-.be-card.fullscreen .be-card-space{height:100%;min-height:180%;padding-bottom:180px;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch}
-.be-card-actions{position:fixed;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));display:none;justify-content:center;gap:24px;padding:0;pointer-events:none;z-index:60}
-.be-card.fullscreen .be-card-actions{display:flex}
+.be-feed-note{font:14px -apple-system,BlinkMacSystemFont,sans-serif;color:#7F887F;letter-spacing:.025em;pointer-events:none;transition:opacity .45s ease}.be-feed-note.hidden{opacity:0;visibility:hidden}
+.be-cards-stage,.be-reels-stage{display:flex;align-items:center;justify-content:center;touch-action:none}
+#beCards,#beReels{position:absolute;inset:0;width:100%;height:100%;touch-action:none;pointer-events:auto}
+.be-browse-card{position:absolute;height:min(72vh,640px);width:min(84vw,390px);border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);overflow:hidden;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;transition:transform .24s ease,opacity .24s ease}
+.be-browse-card.incoming{opacity:0;transform:translate3d(110%,0,0)}
+.be-browse-card.active{opacity:1;transform:translate3d(0,0,0)}
+.be-reel-card{position:absolute;height:min(72vh,640px);width:min(84vw,390px);border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);overflow:hidden;touch-action:none;transition:transform .24s ease,opacity .24s ease}
+.be-reel-card.incoming-up{opacity:0;transform:translate3d(0,110%,0)}
+.be-reel-card.incoming-down{opacity:0;transform:translate3d(0,-110%,0)}
+.be-reel-card.active{opacity:1;transform:translate3d(0,0,0)}
+.be-card-overlay{position:fixed;inset:0;z-index:40;background:var(--paper);display:none;overflow:hidden}
+.be-card-overlay.show{display:block}
+.be-card-overlay-space{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:calc(72px + env(safe-area-inset-top)) 24px calc(150px + env(safe-area-inset-bottom));color:var(--ink)}
+.be-card-overlay-actions{position:fixed;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:24px;z-index:60;pointer-events:none}
 .be-card-action{width:46px;height:46px;border-radius:50%;border:1px solid rgba(41,70,50,.12);background:rgba(245,240,230,.94);color:#899188;font:21px -apple-system,BlinkMacSystemFont,sans-serif;display:flex;align-items:center;justify-content:center;pointer-events:auto;box-shadow:0 4px 16px rgba(36,49,40,.035)}
 .be-card-action.yes{color:var(--green)}
-.be-reels-stage{touch-action:none;overscroll-behavior:none}
-.be-reel-track{position:absolute;left:0;right:0;top:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;will-change:transform;touch-action:none}
-.be-reel-card{position:relative;width:min(84vw,390px);height:min(72vh,640px);flex:0 0 min(84vw,390px);margin:7px 0;border:1px solid rgba(41,70,50,.08);border-radius:28px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035);touch-action:none;overflow:hidden}
 @media(max-width:700px){.be-card,.be-reel-card{height:70vh;width:82vw;flex-basis:82vw}.be-observe-question{font-size:30px}}
 .be-nav{position:absolute;left:0;right:0;bottom:0;z-index:9;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;justify-content:center;align-items:flex-start;padding-top:8px;gap:8px;background:linear-gradient(to top,rgba(245,240,230,.94),rgba(245,240,230,.72),rgba(245,240,230,0))}
 .be-nav button{width:62px;height:44px;border:0;background:transparent;color:#899188;display:flex;align-items:center;justify-content:center;border-radius:12px}
@@ -186,11 +188,19 @@ body.night-mode .be{background:#0f1712;color:#eee9de}
     </div>
 
     <div class="be-stage be-reels-stage" id="beReelsStage" style="display:none">
-      <div class="be-reel-track" id="beReels" aria-label="Be reels"></div>
+      <div id="beReels" aria-label="Be reels"></div>
     </div>
 
     <div class="be-stage be-cards-stage" id="beCardsStage" style="display:none">
-      <div class="be-track" id="beCards" aria-label="Be cards"></div>
+      <div id="beCards" aria-label="Be cards"></div>
+    </div>
+
+    <div class="be-card-overlay" id="beCardOverlay" aria-hidden="true">
+      <div class="be-card-overlay-space" id="beCardOverlaySpace"></div>
+      <div class="be-card-overlay-actions">
+        <button type="button" class="be-card-action" id="beCardNo" aria-label="No">×</button>
+        <button type="button" class="be-card-action yes" id="beCardYes" aria-label="Yes">✓</button>
+      </div>
     </div>
 
     <nav class="be-nav" aria-label="Be spaces">
@@ -514,200 +524,139 @@ const beFeedStage=$('beFeedStage'),beReelsStage=$('beReelsStage'),beCardsStage=$
 const beFeed=$('beFeed'),beReels=$('beReels'),beCards=$('beCards');
 const beFeedTab=$('beFeedTab'),beReelsTab=$('beReelsTab'),beCardsTab=$('beCardsTab'),beObserveTab=$('beObserveTab');
 const beObservePanel=$('beObservePanel'),beObserveInput=$('beObserveInput'),beObserveAck=$('beObserveAck'),beObserveQuestion=$('beObserveQuestion');
-let beMode='feed';
-let beFeedHasScrolled=false;
-
-function makeBlankPages(container,count=21,card=false){
-  container.innerHTML='';
-  for(let i=0;i<count;i++){
-    const el=document.createElement('div');
-    if(container.id==='beReels'){
-      el.className='be-card be-reel-card';
-    }else if(card){
-      el.className='be-card';
-      const space=document.createElement('div');
-      space.className='be-card-space';
-      const actions=document.createElement('div');
-      actions.className='be-card-actions';
-      const no=document.createElement('button');
-      no.type='button'; no.className='be-card-action'; no.setAttribute('aria-label','No'); no.textContent='×';
-      const yes=document.createElement('button');
-      yes.type='button'; yes.className='be-card-action yes'; yes.setAttribute('aria-label','Yes'); yes.textContent='✓';
-      actions.append(no,yes); el.append(space,actions);
-      el.addEventListener('click',e=>{
-        if(e.target.closest('.be-card-action') || Date.now()<suppressCardClickUntil)return;
-        if(!el.classList.contains('fullscreen')) openDatingCard(el);
-      });
-      no.addEventListener('click',e=>{e.stopPropagation(); advanceDatingCard();});
-      yes.addEventListener('click',e=>{e.stopPropagation(); advanceDatingCard();});
-    }else{
-      el.className='be-page';
-      if(container.id==='beFeed' && i===Math.floor(count/2)){
-        const note=document.createElement('div'); note.className='be-feed-note'; note.textContent='A little space to be.'; el.appendChild(note);
-      }
-    }
-    container.appendChild(el);
-  }
-}
-
-let beFeedCenter=10, beCardIndex=10, beReelIndex=10;
-let beCardStartX=0, beCardStartY=0, beCardPointer=false, beCardBusy=false;
-let beReelStartY=0, beReelPointer=false, beReelBusy=false;
-
-function trackStep(container){
-  const child=container.children[0];
-  return child ? child.getBoundingClientRect().width + 14 : 0;
-}
-function setTrack(container,index,animate=false){
-  const step=trackStep(container); if(!step)return;
-  const target=(window.innerWidth/2) - (step*(index+.5));
-  container.style.transition=animate?'transform .28s ease-out':'none';
-  container.style.transform=`translate3d(${target}px,0,0)`;
-}
-function resetTrackPosition(container,index){
-  requestAnimationFrame(()=>setTrack(container,index,false));
-}
-
-function openDatingCard(card){
-  if(beCardBusy)return;
-  document.querySelectorAll('.be-card.fullscreen').forEach(c=>c.classList.remove('fullscreen'));
-  card.classList.add('fullscreen');
-  const space=card.querySelector('.be-card-space');
-  if(space)space.scrollTop=0;
-}
-function closeDatingCard(){
-  const open=document.querySelector('.be-card.fullscreen');
-  if(open)open.classList.remove('fullscreen');
-}
-function advanceDatingCard(){
-  if(beCardBusy)return;
-  closeDatingCard();
-  beCardBusy=true;
-  const old=beCards.children[beCardIndex];
-  const next=(beCardIndex+1)%beCards.children.length;
-  const step=trackStep(beCards);
-  if(!step){beCardBusy=false;return;}
-  beCardIndex=next;
-  setTrack(beCards,beCardIndex,true);
-  setTimeout(()=>{
-    if(beCardIndex>=18){beCardIndex=10;resetTrackPosition(beCards,beCardIndex);}
-    beCardBusy=false;
-  },300);
-}
-
+const beCardOverlay=$('beCardOverlay'),beCardOverlaySpace=$('beCardOverlaySpace'),beCardNo=$('beCardNo'),beCardYes=$('beCardYes');
+let beMode='feed', beFeedHasScrolled=false;
+const BE_COUNT=21;
+let beCardIndex=10, beReelIndex=10, beCardBusy=false, beReelBusy=false;
 let suppressCardClickUntil=0;
+
+function blankCard(kind,index){
+  const el=document.createElement('div');
+  el.className=kind==='reel'?'be-reel-card active':'be-browse-card active';
+  el.dataset.index=index;
+  return el;
+}
+function renderDatingCard(index, direction=1){
+  const old=beCards.querySelector('.be-browse-card');
+  const next=blankCard('card',index);
+  next.classList.remove('active');
+  next.classList.add('incoming');
+  beCards.appendChild(next);
+  requestAnimationFrame(()=>{
+    next.classList.remove('incoming'); next.classList.add('active');
+    if(old){ old.style.transform=`translate3d(${direction<0?'-110%':'110%'},0,0)`; old.style.opacity='0'; }
+  });
+  setTimeout(()=>{ if(old&&old.parentNode) old.remove(); },260);
+}
+function renderInitialDating(){
+  beCards.innerHTML='';
+  beCards.appendChild(blankCard('card',beCardIndex));
+}
+function renderInitialReel(){
+  beReels.innerHTML='';
+  beReels.appendChild(blankCard('reel',beReelIndex));
+}
+function openDatingCard(){
+  if(beCardBusy)return;
+  beCardOverlaySpace.innerHTML='';
+  const filler=document.createElement('div');
+  filler.style.minHeight='180%';
+  beCardOverlaySpace.appendChild(filler);
+  beCardOverlay.classList.add('show');
+  beCardOverlay.setAttribute('aria-hidden','false');
+  beCardOverlaySpace.scrollTop=0;
+}
+function closeDatingOverlay(){
+  beCardOverlay.classList.remove('show');
+  beCardOverlay.setAttribute('aria-hidden','true');
+  beCardOverlaySpace.scrollTop=0;
+}
+function advanceDating(direction=1){
+  if(beCardBusy)return;
+  beCardBusy=true;
+  closeDatingOverlay();
+  beCardIndex=(beCardIndex+1)%BE_COUNT;
+  renderDatingCard(beCardIndex,direction);
+  setTimeout(()=>{beCardBusy=false;},280);
+}
 function setupDatingPointer(){
-  let sx=0,sy=0,moved=false,downCard=null,tracking=false;
-  const begin=(x,y,target)=>{
-    const card=target.closest('.be-card');
-    if(!card || card.classList.contains('fullscreen') || target.closest('.be-card-action')) return;
-    sx=x;sy=y;moved=false;downCard=card;tracking=true;
-  };
-  const move=(x,y,e)=>{
-    if(!tracking||!downCard)return;
-    const dx=x-sx,dy=y-sy;
-    if(Math.abs(dx)>8||Math.abs(dy)>8)moved=true;
-    if(moved && Math.abs(dx)>Math.abs(dy) && e && e.cancelable)e.preventDefault();
-  };
-  const end=(x,y)=>{
-    if(!tracking||!downCard)return;
-    const dx=x-sx,dy=y-sy,card=downCard;
-    tracking=false;downCard=null;
-    if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)){
-      suppressCardClickUntil=Date.now()+500;
-      advanceDatingCard();
-    }else if(Math.abs(dx)<15 && Math.abs(dy)<15 && !moved){
-      openDatingCard(card);
-    }
-  };
-  beCards.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'){try{beCards.setPointerCapture(e.pointerId)}catch(_){}} begin(e.clientX,e.clientY,e.target);},{passive:true});
+  let sx=0,sy=0,tracking=false,moved=false;
+  const start=(x,y)=>{sx=x;sy=y;tracking=true;moved=false;};
+  const move=(x,y,e)=>{if(!tracking)return;const dx=x-sx,dy=y-sy;if(Math.abs(dx)>8||Math.abs(dy)>8)moved=true;if(moved&&Math.abs(dx)>Math.abs(dy)&&e&&e.cancelable)e.preventDefault();};
+  const end=(x,y)=>{if(!tracking)return;tracking=false;const dx=x-sx,dy=y-sy;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)){suppressCardClickUntil=Date.now()+500;advanceDating(1);}};
+  beCards.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;start(e.clientX,e.clientY);try{beCards.setPointerCapture(e.pointerId)}catch(_){}},{passive:true});
   beCards.addEventListener('pointermove',e=>move(e.clientX,e.clientY,e),{passive:false});
   beCards.addEventListener('pointerup',e=>end(e.clientX,e.clientY),{passive:true});
-  beCards.addEventListener('pointercancel',()=>{tracking=false;downCard=null;},{passive:true});
-  beCards.addEventListener('touchstart',e=>{const t=e.changedTouches[0];begin(t.clientX,t.clientY,e.target);},{passive:true});
-  beCards.addEventListener('touchmove',e=>{const t=e.changedTouches[0];move(t.clientX,t.clientY,e);},{passive:false});
-  beCards.addEventListener('touchend',e=>{const t=e.changedTouches[0];end(t.clientX,t.clientY);},{passive:true});
-  beCards.addEventListener('click',e=>{
-    if(Date.now()<suppressCardClickUntil)return;
-    const card=e.target.closest('.be-card');
-    if(!card||card.classList.contains('fullscreen')||e.target.closest('.be-card-action'))return;
-    openDatingCard(card);
-  });
+  beCards.addEventListener('pointercancel',()=>tracking=false,{passive:true});
+  beCards.addEventListener('click',e=>{if(Date.now()<suppressCardClickUntil)return;if(e.target.closest('.be-browse-card'))openDatingCard();});
 }
 function setupReelPointer(){
-  let sy=0,active=false;
-  const begin=y=>{sy=y;active=true;};
-  const end=y=>{if(!active)return;active=false;const dy=y-sy;if(Math.abs(dy)>35)advanceReel(dy<0?1:-1);};
-  beReelsStage.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;begin(e.clientY);try{beReelsStage.setPointerCapture(e.pointerId)}catch(_){}},{passive:true});
-  beReelsStage.addEventListener('pointermove',e=>{if(active&&e.cancelable)e.preventDefault();},{passive:false});
+  let sy=0,tracking=false;
+  const start=y=>{sy=y;tracking=true;};
+  const move=(y,e)=>{if(tracking&&e&&e.cancelable)e.preventDefault();};
+  const end=y=>{if(!tracking)return;tracking=false;const dy=y-sy;if(Math.abs(dy)>45)advanceReel(dy<0?1:-1);};
+  beReelsStage.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;start(e.clientY);try{beReelsStage.setPointerCapture(e.pointerId)}catch(_){}},{passive:true});
+  beReelsStage.addEventListener('pointermove',e=>move(e.clientY,e),{passive:false});
   beReelsStage.addEventListener('pointerup',e=>end(e.clientY),{passive:true});
-  beReelsStage.addEventListener('pointercancel',()=>{active=false;},{passive:true});
-  beReelsStage.addEventListener('touchstart',e=>begin(e.changedTouches[0].clientY),{passive:true});
-  beReelsStage.addEventListener('touchmove',e=>{if(active&&e.cancelable)e.preventDefault();},{passive:false});
+  beReelsStage.addEventListener('pointercancel',()=>tracking=false,{passive:true});
+  beReelsStage.addEventListener('touchstart',e=>start(e.changedTouches[0].clientY),{passive:true});
+  beReelsStage.addEventListener('touchmove',e=>move(e.changedTouches[0].clientY,e),{passive:false});
   beReelsStage.addEventListener('touchend',e=>end(e.changedTouches[0].clientY),{passive:true});
 }
-function setFeedStart(){
-  if(!beFeed || !beFeed.children.length) return;
-  const mid=Math.floor(beFeed.children.length/2);
-  beFeed.scrollTop=mid*beFeed.clientHeight;
-}
-function setReelTrack(index,animate=false){
-  if(!beReels || !beReels.children.length) return;
-  const h=beReelsStage.clientHeight || window.innerHeight;
-  const gap=14;
-  const step=h+gap;
-  const target=(h/2)-step*(index+.5);
-  beReels.style.transition=animate?'transform .28s ease-out':'none';
-  beReels.style.transform=`translate3d(0,${target}px,0)`;
-}
 function advanceReel(direction){
-  if(beReelBusy) return;
+  if(beReelBusy)return;
   beReelBusy=true;
-  const n=beReels.children.length;
-  beReelIndex=(beReelIndex+direction+n)%n;
-  setReelTrack(beReelIndex,true);
-  setTimeout(()=>{
-    if(beReelIndex>=18){beReelIndex=10;setReelTrack(beReelIndex,false);}
-    if(beReelIndex<=2){beReelIndex=10;setReelTrack(beReelIndex,false);}
-    beReelBusy=false;
-  },300);
+  const old=beReels.querySelector('.be-reel-card');
+  beReelIndex=(beReelIndex+direction+BE_COUNT)%BE_COUNT;
+  const next=blankCard('reel',beReelIndex);
+  next.classList.remove('active');
+  next.classList.add(direction>0?'incoming-up':'incoming-down');
+  beReels.appendChild(next);
+  requestAnimationFrame(()=>{
+    next.classList.remove('incoming-up','incoming-down'); next.classList.add('active');
+    if(old){old.style.transform=`translate3d(0,${direction>0?'-110%':'110%'},0)`;old.style.opacity='0';}
+  });
+  setTimeout(()=>{if(old&&old.parentNode)old.remove();beReelBusy=false;},260);
 }
+function setFeedStart(){if(!beFeed||!beFeed.children.length)return;requestAnimationFrame(()=>{beFeed.scrollTop=Math.floor(BE_COUNT/2)*beFeed.clientHeight;});}
 function setBeMode(mode){
-  closeDatingCard();
+  closeDatingOverlay();
   beMode=mode;
   beFeedStage.style.display=mode==='feed'?'block':'none';
   beReelsStage.style.display=mode==='reels'?'block':'none';
   beCardsStage.style.display=mode==='cards'?'block':'none';
   [beFeedTab,beReelsTab,beCardsTab,beObserveTab].forEach(b=>b.classList.remove('active'));
   (mode==='feed'?beFeedTab:mode==='reels'?beReelsTab:beCardsTab).classList.add('active');
-  requestAnimationFrame(()=>{
-    if(mode==='feed' && !beFeedHasScrolled)setFeedStart();
-    if(mode==='cards'){beCardIndex=10;setTrack(beCards,beCardIndex,false);}
-    if(mode==='reels'){beReelIndex=10;setReelTrack(beReelIndex,false);}
-  });
+  requestAnimationFrame(()=>{if(mode==='feed')setFeedStart();});
 }
 function openBe(){
   beFeedHasScrolled=false;
-  setMainNavActive('be'); home.style.opacity='0';home.style.pointerEvents='none';
+  setMainNavActive('be');
+  home.style.opacity='0';home.style.pointerEvents='none';
   night.classList.remove('show');nightSession.classList.remove('show');invite.classList.remove('show');retreat.classList.remove('show');welcome.classList.remove('show');
-  document.body.classList.remove('night-mode');be.classList.add('show');setBeMode('feed');
+  document.body.classList.remove('night-mode');
+  be.classList.add('show');
+  setBeMode('feed');
 }
-function closeBe(){setMainNavActive('breathe');closeDatingCard();beObservePanel.classList.remove('show');be.classList.remove('show');home.style.opacity='1';home.style.pointerEvents='auto';}
-
-makeBlankPages(beFeed,21,false);
-makeBlankPages(beReels,21,false);
-makeBlankPages(beCards,21,true);
-setupDatingPointer();setupReelPointer();
-beFeed.addEventListener('scroll',()=>{if(beFeed.scrollTop>10 && !beFeedHasScrolled){beFeedHasScrolled=true;document.querySelectorAll('.be-feed-note').forEach(n=>n.classList.add('hidden'));}},{passive:true});
-
-window.addEventListener('resize',()=>{requestAnimationFrame(()=>{if(beMode==='feed')setFeedStart();if(beMode==='cards')setTrack(beCards,beCardIndex,false);if(beMode==='reels')setReelTrack(beReelIndex,false);});});
-
-$('beOpen').addEventListener('click',openBe);
-$('beBack').addEventListener('click',closeBe);
-beFeedTab.addEventListener('click',()=>setBeMode('feed'));
-beReelsTab.addEventListener('click',()=>setBeMode('reels'));
-beCardsTab.addEventListener('click',()=>setBeMode('cards'));
-beObserveTab.addEventListener('click',openObserve);
+function closeBe(){
+  setMainNavActive('breathe');closeDatingOverlay();beObservePanel.classList.remove('show');be.classList.remove('show');home.style.opacity='1';home.style.pointerEvents='auto';
+}
+function makeFeed(){
+  beFeed.innerHTML='';
+  for(let i=0;i<BE_COUNT;i++){
+    const page=document.createElement('div');page.className='be-page';
+    if(i===Math.floor(BE_COUNT/2)){const note=document.createElement('div');note.className='be-feed-note';note.textContent='A little space to be.';page.appendChild(note);}
+    beFeed.appendChild(page);
+  }
+}
+makeFeed();renderInitialDating();renderInitialReel();setupDatingPointer();setupReelPointer();
+beFeed.addEventListener('scroll',()=>{if(beFeed.scrollTop>10&&!beFeedHasScrolled){beFeedHasScrolled=true;document.querySelectorAll('.be-feed-note').forEach(n=>n.classList.add('hidden'));}},{passive:true});
+window.addEventListener('resize',()=>{if(beMode==='feed')setFeedStart();});
+$('beOpen').addEventListener('click',openBe);$('beBack').addEventListener('click',closeBe);
+beFeedTab.addEventListener('click',()=>setBeMode('feed'));beReelsTab.addEventListener('click',()=>setBeMode('reels'));beCardsTab.addEventListener('click',()=>setBeMode('cards'));beObserveTab.addEventListener('click',openObserve);
+beCardNo.addEventListener('click',e=>{e.stopPropagation();advanceDating(1);});
+beCardYes.addEventListener('click',e=>{e.stopPropagation();advanceDating(1);});
+beCardOverlay.addEventListener('click',e=>{if(e.target===beCardOverlay)closeDatingOverlay();});
 
 function openObserve(){
   [beFeedTab,beReelsTab,beCardsTab,beObserveTab].forEach(b=>b.classList.remove('active'));
@@ -749,7 +698,7 @@ $('beObserveClose').addEventListener('click',closeObserve);
 beObservePanel.addEventListener('click',e=>{if(e.target===beObservePanel)closeObserve();});
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape' && beObservePanel.classList.contains('show')) closeObserve();
-  if(e.key==='Escape') document.querySelectorAll('.be-card.fullscreen').forEach(c=>c.classList.remove('fullscreen'));
+  if(e.key==='Escape') closeDatingOverlay();
 });
 $('nightBegin').addEventListener('click',runNight);
 openNightFromQuery();
@@ -770,6 +719,9 @@ $('nightLeave').addEventListener('click',()=>{
   home.style.pointerEvents='auto';
 });
 $('begin').addEventListener('click',()=>{ setMainNavActive('breathe'); runThree(); });
+// Keep the primary home controls explicitly interactive whenever no session/screen is active.
+function restoreHomeInteractivity(){ if(!be.classList.contains('show') && !night.classList.contains('show') && !nightSession.classList.contains('show') && !invite.classList.contains('show') && !retreat.classList.contains('show') && !welcome.classList.contains('show')){ home.style.pointerEvents='auto'; home.style.opacity='1'; } }
+restoreHomeInteractivity();
 $('inviteButton').addEventListener('click',()=>runRetreatStage(nextStage));
 $('inviteDone').addEventListener('click',()=>{
   invite.classList.remove('show');welcome.classList.add('show');
