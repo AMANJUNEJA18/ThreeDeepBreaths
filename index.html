@@ -86,6 +86,7 @@ body.night-mode .footer{color:#737d75}
 .be-reel-card.incoming-up{opacity:0;transform:translate3d(-50%,calc(-50% + 110%),0)}
 .be-reel-card.incoming-down{opacity:0;transform:translate3d(-50%,calc(-50% - 110%),0)}
 .be-reel-card.active{opacity:1;transform:translate3d(-50%,-50%,0)}
+.be-reel-social{position:absolute;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:18px;color:rgba(41,70,50,.68);pointer-events:none;z-index:2}.be-reel-social-item{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:30px}.be-reel-social svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.be-reel-social .dots{font:22px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:2px}.be-reel-social-count{font:10px/1 -apple-system,BlinkMacSystemFont,sans-serif;color:rgba(41,70,50,.52)}
 .be-card-overlay{position:fixed;inset:0;z-index:40;background:var(--paper);display:none;overflow:hidden}
 .be-card-overlay.show{display:block}
 .be-card-overlay-space{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:calc(72px + env(safe-area-inset-top)) 24px calc(150px + env(safe-area-inset-bottom));color:var(--ink)}
@@ -534,6 +535,14 @@ function blankCard(kind,index){
   const el=document.createElement('div');
   el.className=kind==='reel'?'be-reel-card active':'be-browse-card active';
   el.dataset.index=index;
+  if(kind==='reel'){
+    el.innerHTML=`<div class="be-reel-social" aria-hidden="true">
+      <div class="be-reel-social-item"><svg viewBox="0 0 24 24"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.3a4.7 4.7 0 0 1 8.8 2.4Z"/></svg><span class="be-reel-social-count">0</span></div>
+      <div class="be-reel-social-item"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 2v-4.1A7.5 7.5 0 1 1 20 11.5Z"/></svg><span class="be-reel-social-count">0</span></div>
+      <div class="be-reel-social-item"><svg viewBox="0 0 24 24"><path d="m21 3-7.2 18-3.9-7.9L2 9.2 21 3Z"/><path d="m9.9 13.1 5.2-5.2"/></svg><span class="be-reel-social-count">0</span></div>
+      <div class="be-reel-social-item"><span class="dots">•••</span></div>
+    </div>`;
+  }
   return el;
 }
 function renderDatingCard(index, direction=1){

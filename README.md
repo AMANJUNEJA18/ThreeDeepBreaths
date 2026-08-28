@@ -1,4 +1,4 @@
-# Three Deep Breaths — v28
+# Three Deep Breaths — v30
 
 ## Be interaction layer
 
@@ -16,3 +16,8 @@ Upload the contents of this folder to the site root. Do not nest the `v28pkg` di
 ## v29 visual alignment
 
 Only the Be Dating Cards and Reels card geometry was adjusted in v29. Both use the same centered rectangular card geometry, with the card positioned below/within the Be header area while preserving their existing interaction behavior. No Breathe, Night, Observatory, or Be interaction logic was intentionally changed.
+
+
+## v30 reels visual detail
+
+Only the Be Reels cards received a visual-only social rail: heart, comment, share, and more (⋯), with zero-count labels. These elements are non-interactive and do not alter any existing navigation, swipe, card, Observatory, Breathe, Night, audio, or synchronization behavior.
