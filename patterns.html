@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#F5F0E6">
+<title>Patterns. — Three Deep Breaths.</title>
+<style>
+:root{--paper:#F5F0E6;--ink:#243128;--green:#294632;--muted:#818A80;--line:#C4C5B9}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink)}
+body{font-family:Georgia,serif;-webkit-font-smoothing:antialiased}
+button,textarea{font:inherit}button{cursor:pointer}
+.page{min-height:100dvh;display:flex;justify-content:center;padding:calc(24px + env(safe-area-inset-top)) 24px calc(30px + env(safe-area-inset-bottom))}
+.wrap{width:min(92vw,620px);padding:0 0 50px}
+.top{display:flex;justify-content:center;position:relative}.title{font-size:18px}.back{position:absolute;right:0;top:-5px;border:0;background:none;color:var(--muted);font:13px -apple-system,BlinkMacSystemFont,sans-serif}
+.hero{padding:15vh 0 8vh;text-align:center}.hero h1{font-size:50px;line-height:1.02;font-weight:400;letter-spacing:-.04em;margin:0 0 18px}.hero p{font:14px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;color:var(--muted);margin:0}
+.card{border:1px solid rgba(41,70,50,.10);border-radius:28px;padding:26px;background:rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(36,49,40,.035)}
+.prompt{text-align:center;font-size:26px;margin-bottom:18px}.hint{text-align:center;font:12px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;color:var(--muted)}
+textarea{display:block;width:100%;min-height:230px;margin:24px 0 18px;padding:8px 4px;border:0;border-bottom:1px solid rgba(41,70,50,.18);outline:0;resize:vertical;background:transparent;color:var(--ink);font:18px/1.6 Georgia,serif}
+textarea::placeholder{color:#9aa097}
+.actions{display:flex;justify-content:center;gap:14px}.primary,.quiet{border-radius:999px;padding:12px 22px;font:14px -apple-system,BlinkMacSystemFont,sans-serif}.primary{border:0;background:var(--green);color:#fff}.quiet{border:1px solid var(--line);background:transparent;color:var(--muted)}
+.result{margin-top:24px;display:none}.result.show{display:block}.result-title{text-align:center;font-size:26px;margin:5px 0 24px}.pattern{padding:20px 0;border-top:1px solid rgba(41,70,50,.10)}.pattern:first-child{border-top:0}.label{font:10px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}.pattern h3{font-size:22px;font-weight:400;line-height:1.25;margin:0 0 9px}.pattern p{font:14px/1.65 -apple-system,BlinkMacSystemFont,sans-serif;color:#667066;margin:0}.soft{margin-top:25px;text-align:center;font:12px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;color:var(--muted)}
+.breath{display:none;text-align:center;padding:55px 0 15px}.breath.show{display:block}.breath-ring{width:78px;height:78px;border:1px solid #9BA68D;border-radius:50%;margin:0 auto 17px;animation:breathe 8s ease-in-out infinite}.breath span{font:11px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#657062}@keyframes breathe{0%,100%{transform:scale(.92)}50%{transform:scale(1.08)}}
+.safe{text-align:center;margin-top:55px;font:11px -apple-system,BlinkMacSystemFont,sans-serif;color:#8b9289;letter-spacing:.02em}
+@media(max-width:700px){.hero{padding-top:12vh}.hero h1{font-size:44px}.card{padding:22px}}
+</style>
+</head>
+<body>
+<main class="page"><div class="wrap">
+<header class="top"><div class="title">Patterns.</div><button class="back" id="back">Back</button></header>
+
+<section class="hero"><h1>What keeps<br>showing up?</h1><p>You don't have to know what it means.<br>Just share what you notice.</p></section>
+
+<section class="card" id="inputCard">
+<div class="prompt">Share anything.</div>
+<div class="hint">A moment. A memory. Something that keeps happening.<br>There is no right way to begin.</div>
+<textarea id="story" aria-label="Share anything" placeholder="I remember…"></textarea>
+<div class="actions"><button class="primary" id="see">Look gently</button><button class="quiet" id="clear">Clear</button></div>
+</section>
+
+<section class="breath" id="breath"><div class="breath-ring"></div><span>Three Deep Breaths.</span></section>
+<section class="result card" id="result" aria-live="polite"></section>
+<div class="safe">A little space to be.</div>
+</div></main>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const story=$('story'),result=$('result'),breath=$('breath');
+
+const STOP=new Set(('the a an and or but to of in on for from with that this it is was were are be been being i me my mine we our you your they their he she his her them as at by into about after before then than so just also very really have has had do did does not no yes can could would should will may might used use always often sometimes once again now here there what when where why how all some any many much more most one two three').split(' '));
+const GROUPS={
+return:['return','returned','returning','again','back','reach','reached','reaching','keep going','kept going','go back','went back','come back','came back','reconnect','reconnected','reconnects','again and again'],
+holding:['hold','holding','held','keep','kept','couldn’t let','couldnt let','didn’t want to let','didnt want to let','hard to leave','difficult to leave','difficulty leaving','stuck'],
+release:['let go','letting go','released','release','walk away','walked away','moved on','closure','closed','leave','left','release started','released it'],
+familiarity:['familiar','known','comfort','comfortable','safe','same','similar','connection','attached','attachment'],
+repetition:['always','every time','again','repeatedly','kept','keep','over and over','many times','for years','again and again'],
+transition:['change','changed','shift','shifting','different','new','old','ended','end','shut down','sold','gone','disappeared','appeared'],
+evaluation:['regret','guilt','self doubt','self-worth','worth','confidence','afraid','fear','anxious','overwhelmed','ashamed']
+};
+function norm(s){return s.toLowerCase().replace(/[“”‘’]/g,"'").replace(/[^a-z0-9'\s-]/g,' ')}
+function hits(text,arr){return arr.filter(x=>text.includes(x)).length}
+function tokens(s){return norm(s).split(/\s+/).filter(w=>w.length>2&&!STOP.has(w))}
+function makePatterns(raw){
+  const t=norm(raw),out=[];
+  const r=hits(t,GROUPS.return),h=hits(t,GROUPS.holding),rel=hits(t,GROUPS.release),fam=hits(t,GROUPS.familiarity),rep=hits(t,GROUPS.repetition),tr=hits(t,GROUPS.transition);
+  const seqReturn=r>=2&&(h+rel+rep)>=1;
+  const seqHold=h>=2&&rel>=1;
+  const cross=Object.values(GROUPS).filter(g=>hits(t,g)>0).length>=3;
+  if(seqReturn)out.push({label:'A possible recurring movement',title:'Returning to what has become significant.',body:'There are several moments of returning, reconnecting, or coming back. That becomes more meaningful because the same movement appears alongside holding, repetition, or change. This is a candidate pattern, not a conclusion.'});
+  if(seqHold)out.push({label:'Something worth noticing',title:'Holding on seems to meet change.',body:'The story contains both difficulty leaving or releasing and evidence of endings or movement. The interesting part may be what happens between those two moments.'});
+  if(fam>=2&&r>=1)out.push({label:'Another possibility',title:'Familiarity may be part of the pull.',body:'Words and moments around what feels known, comfortable, or connected appear near returning. The engine cannot tell yet whether familiarity is the reason, only that it may be worth exploring.'});
+  if(cross&&out.length===0)out.push({label:'A thread',title:'Different moments may share a shape.',body:'The story contains several kinds of movement—repetition, change, and emotional response. There may be a common structure underneath them, but there is not enough evidence yet to name it.'});
+  if(out.length===0)return[{label:'For now',title:'Nothing clear enough to call a pattern.',body:'There may be something here. But from what has been shared, there is not yet enough repetition or connection for the engine to name one without guessing. You can keep sharing, if you want.'}];
+  if(out.length>1&&tr>=2)out.push({label:'Across time',title:'The pattern may be changing.',body:'The story includes movement between earlier and later experiences. Rather than treating the pattern as fixed, it may be more useful to notice whether the way you respond to it has changed.'});
+  return out.slice(0,3);
+}
+function render(){
+  const raw=story.value.trim();
+  if(raw.length<12){story.focus();return}
+  result.innerHTML='<div class="result-title">Something to look at.</div>'+makePatterns(raw).map(p=>`<article class="pattern"><div class="label">${p.label}</div><h3>${p.title}</h3><p>${p.body}</p></article>`).join('')+'<div class="soft">Does any of this feel true?<br>You can say no. You can change it. You can leave it here.</div>';
+  result.classList.add('show');breath.classList.add('show');
+  setTimeout(()=>result.scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+$('see').addEventListener('click',render);
+$('clear').addEventListener('click',()=>{story.value='';result.classList.remove('show');breath.classList.remove('show');story.focus()});
+$('back').addEventListener('click',()=>{if(history.length>1)history.back();else location.href='/'});
+</script>
+</body>
+</html>
